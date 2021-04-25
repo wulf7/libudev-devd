@@ -5,6 +5,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#ifdef HAVE_SYS_TREE_H
+#include <sys/tree.h>
+#else
+#include "tree.h"
+#endif
 
 /* #define	ENABLE_TRACE */
 #define	LOG_LEVEL       0

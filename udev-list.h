@@ -1,10 +1,8 @@
 #ifndef UDEV_LIST_H_
 #define UDEV_LIST_H_
 
-#include "libudev.h"
-
-#include <sys/types.h>
-#include <sys/tree.h>
+#include "config.h"
+#include "utils.h"
 
 RB_HEAD(udev_list, udev_list_entry);
 

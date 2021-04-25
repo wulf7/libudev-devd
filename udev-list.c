@@ -30,9 +30,6 @@
 #include "udev-utils.h"
 #include "utils.h"
 
-#include <sys/types.h>
-#include <sys/tree.h>
-
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
