@@ -43,6 +43,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef HAVE_DEV_HID_HIDRAW_H
+#include <dev/hid/hidraw.h>
+#endif
+
 #ifdef HAVE_LINUX_INPUT_H
 #include <linux/input.h>
 #else
@@ -71,6 +75,7 @@ void create_touchscreen_handler(struct udev_device *udev_device);
 void create_sysmouse_handler(struct udev_device *udev_device);
 void create_kbdmux_handler(struct udev_device *udev_device);
 void create_drm_handler(struct udev_device *udev_device);
+void create_hidraw_handler(struct udev_device *udev_device);
 
 struct subsystem_config {
 	char *subsystem;
@@ -137,6 +142,11 @@ struct subsystem_config subsystems[] = {
 	{ "drm", DEV_PATH_ROOT "/dri/card[0-9]*",
 		0,
 		create_drm_handler },
+#ifdef HAVE_DEV_HID_HIDRAW_H
+	{ "hidraw", DEV_PATH_ROOT "/hidraw[0-9]*",
+		0,
+		create_hidraw_handler },
+#endif
 };
 
 static struct subsystem_config *
@@ -652,3 +662,51 @@ create_drm_handler(struct udev_device *ud)
 	udev_list_insert(udev_device_get_properties_list(ud), "HOTPLUG", "1");
 	set_parent(ud);
 }
+
+#ifdef HAVE_DEV_HID_HIDRAW_H
+void create_hidraw_handler(struct udev_device *ud)
+{
+	char name[80], phys[80], uniq[32];
+	const char *sysname;
+	char *uevent;
+	struct hidraw_devinfo info;
+	struct udev_device *parent;
+	struct udev *udev;
+	struct udev_list *sysattrs;
+	int fd = -1;
+	bool opened = false;
+
+	fd = path_to_fd(udev_device_get_devnode(ud));
+	if (fd == -1) {
+		fd = open(udev_device_get_devnode(ud), O_RDONLY | O_CLOEXEC);
+		opened = true;
+	}
+	if (fd == -1)
+		return;
+
+	if (ioctl(fd, HIDIOCGRAWNAME(sizeof(name)), name) < 0 ||
+	    ioctl(fd, HIDIOCGRAWPHYS(sizeof(phys)), phys) < 0 ||
+	    ioctl(fd, HIDIOCGRAWUNIQ(sizeof(uniq)), uniq) < 0 ||
+	    ioctl(fd, HIDIOCGRAWINFO, &info) < 0) {
+		ERR("could not query hidraw");
+		goto bail_out;
+	}
+
+	sysname = phys[0] == 0 ? virtual_sysname : phys;
+	udev = udev_device_get_udev(ud);
+	parent = udev_device_new_common(udev, sysname, UD_ACTION_NONE);
+	if (parent == NULL)
+		goto bail_out;
+
+	sysattrs = udev_device_get_sysattr_list(parent);
+	asprintf(&uevent,
+	    "HID_ID=%04X:%08X:%08X\nHID_NAME=%s\nHID_PHYS=%s\nHID_UNIQ=%s",
+	    info.bustype, info.vendor, info.product, name, phys, uniq);
+	udev_list_insert(sysattrs, "uevent", uevent);
+	free(uevent);
+
+bail_out:
+	if (opened)
+		close(fd);
+}
+#endif

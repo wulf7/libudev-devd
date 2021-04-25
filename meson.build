@@ -44,6 +44,10 @@ if cc.has_header_symbol('libprocstat.h', 'procstat_open_sysctl', prefix : procst
 	config_h.set('HAVE_LIBPROCSTAT_H', '1')
 endif
 
+if cc.has_header('dev/hid/hidraw.h')
+	config_h.set('HAVE_DEV_HID_HIDRAW_H', '1')
+endif
+
 if cc.has_header('linux/input.h')
 	config_h.set('HAVE_LINUX_INPUT_H', '1')
 endif
