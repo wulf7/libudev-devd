@@ -18,7 +18,7 @@ dir_src         = join_paths(meson.source_root())
 
 # Compiler setup
 cc = meson.get_compiler('c')
-cflags = ['-fvisibility=hidden']
+cflags = ['-fvisibility=hidden', '-D_GNU_SOURCE']
 add_project_arguments(cflags, language: 'c')
 
 # config.h
@@ -60,6 +60,10 @@ endif
 
 if cc.has_function('strchrnul')
 	config_h.set('HAVE_STRCHRNUL', '1')
+endif
+
+if cc.has_function('strlcpy')
+	config_h.set('HAVE_STRLCPY', '1')
 endif
 
 libudevdevd_so_version = '0.0.0'

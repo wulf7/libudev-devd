@@ -68,5 +68,8 @@ int pipe2(int fildes[2], int flags);
 #ifndef HAVE_STRCHRNUL
 char *strchrnul(const char *p, int ch);
 #endif
+#ifndef HAVE_STRLCPY
+size_t strlcpy(char *dst, const char *src, size_t dsize);
+#endif
 
 #endif /* UTILS_H_ */
