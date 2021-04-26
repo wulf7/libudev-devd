@@ -44,6 +44,10 @@ do {									\
 
 #define	UNIMPL()	ERR("%s is unimplemented", __FUNCTION__)
 
+#ifndef nitems
+#define	nitems(x)	(sizeof((x)) / sizeof((x)[0]))
+#endif
+
 typedef int (* scan_cb_t) (const char *path, int type, void *args);
 
 /* If .recursive is true, then .cb gets called for non-dir
