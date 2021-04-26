@@ -36,6 +36,9 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/stat.h>
+#ifdef __linux__
+#include <sys/sysmacros.h>
+#endif
 
 #include <stdarg.h>
 #include <stdatomic.h>
