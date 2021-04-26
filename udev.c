@@ -87,7 +87,7 @@ udev_unref(struct udev *udev)
 }
 
 LIBUDEV_EXPORT const char *
-udev_get_dev_path(struct udev *udev __unused)
+udev_get_dev_path(struct udev *udev)
 {
 
 	TRC();
