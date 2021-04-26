@@ -219,12 +219,13 @@ scandir_sub(char *path, int off, int rem, struct scan_ctx *ctx)
 {
 	DIR *dir;
 	struct dirent *ent;
+	int ret = 0;
 
 	dir = opendir(path);
 	if (dir == NULL)
-		return (errno == ENOENT ? 0 : -1);
+		return (errno == ENOMEM ? -1 : 0);
 
-	while ((ent = readdir(dir)) != NULL) {
+	while (ret >= 0 && (ent = readdir(dir)) != NULL) {
 		if (strcmp(ent->d_name, ".") == 0 ||
 		    strcmp(ent->d_name, "..") == 0)
 			continue;
@@ -245,20 +246,17 @@ scandir_sub(char *path, int off, int rem, struct scan_ctx *ctx)
 			off++;
 			rem--;
 			/* recurse */
-			scandir_sub(path, off, rem, ctx);
+			ret = scandir_sub(path, off, rem, ctx);
 			off--;
 			rem++;
 		} else {
-			if ((ctx->cb)(path, ent->d_type, ctx->args) < 0) {
-				closedir(dir);
-				return (-1);
-			}
+			ret = (ctx->cb)(path, ent->d_type, ctx->args);
 		}
 		off -= len;
 		rem += len;
 	}
-        closedir(dir);
-        return (0);
+	closedir(dir);
+	return (ret);
 }
 
 int
