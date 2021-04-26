@@ -33,7 +33,9 @@
 
 #include <sys/param.h>
 #include <sys/types.h>
+#ifdef HAVE_SYSCTLBYNAME
 #include <sys/sysctl.h>
+#endif
 
 #include <fcntl.h>
 #include <fnmatch.h>
@@ -165,13 +167,19 @@ static bool
 kernel_has_evdev_enabled()
 {
 	static int enabled = -1;
+#ifdef HAVE_SYSCTLBYNAME
 	size_t len;
+#endif
 
 	if (enabled != -1)
 		return (enabled);
 
+#ifdef HAVE_SYSCTLBYNAME
 	if (sysctlbyname("kern.features.evdev_support", &enabled, &len, NULL, 0) < 0)
 		return (0);
+#else
+	enabled = 1;
+#endif
 
 	TRC("() EVDEV enabled: %s", enabled ? "true" : "false");
 	return (enabled);
@@ -324,10 +332,9 @@ void
 create_evdev_handler(struct udev_device *ud)
 {
 	struct udev_device *parent;
-	const char *sysname, *unit;
-	char name[80], product[80], phys[80], mib[32];
+	const char *sysname;
+	char name[80], product[80], phys[80];
 	int fd = -1, input_type = IT_NONE;
-	size_t len;
 	bool opened = false;
 	bool has_keys, has_buttons, has_lmr, has_dpad, has_joy_axes;
 	bool has_rel_axes, has_abs_axes, has_mt, has_switches;
@@ -337,6 +344,10 @@ create_evdev_handler(struct udev_device *ud)
 	unsigned long sw_bits[NLONGS(SW_CNT)];
 	unsigned long prp_bits[NLONGS(INPUT_PROP_CNT)];
 	struct input_id id;
+#ifdef HAVE_SYSCTLBYNAME
+	const char *unit;
+	char mib[32];
+	size_t len;
 
 	sysname = udev_device_get_sysname(ud);
 	len = syspathlen_wo_units(sysname);
@@ -386,6 +397,7 @@ create_evdev_handler(struct udev_device *ud)
 
 use_ioctl:
 	ERR("sysctl not found, opening device and using ioctl");
+#endif
 
 	fd = path_to_fd(udev_device_get_devnode(ud));
 	if (fd == -1) {
@@ -407,7 +419,9 @@ use_ioctl:
 		goto bail_out;
 	}
 
+#ifdef HAVE_SYSCTLBYNAME
 found_values:
+#endif
 	/* Derived from EvdevProbe() function of xf86-input-evdev driver */
 	has_keys = bit_find(key_bits, 0, BTN_MISC);
 	has_buttons = bit_find(key_bits, BTN_MISC, BTN_JOYSTICK);
@@ -516,18 +530,25 @@ syspathlen_wo_units(const char *path) {
 void
 set_parent(struct udev_device *ud)
 {
-        struct udev_device *parent;
-	char devname[DEV_PATH_MAX], mib[32], pnpinfo[1024];
-	char name[80], product[80], parentname[80], *pnp_id;
-	const char *sysname, *unit, *vendorstr, *prodstr, *devicestr;
-	size_t len, vendorlen, prodlen, devicelen, pnplen;
-	uint32_t bus, prod, vendor;
+	struct udev_device *parent;
+	const char *sysname;
+	char product[80], name[80];
+	char *pnp_id = NULL;
+	size_t len;
+	uint32_t bus = BUS_VIRTUAL, prod = 0, vendor = 0;
+#ifdef HAVE_SYSCTLBYNAME
+	char devname[DEV_PATH_MAX], mib[32], pnpinfo[1024], parentname[80];
+	const char *unit, *vendorstr, *prodstr, *devicestr;
+	size_t vendorlen, prodlen, devicelen, pnplen;
+#endif
 
 	sysname = udev_device_get_sysname(ud);
 	len = syspathlen_wo_units(sysname);
 	/* Check if device unit number found */
 	if (strlen(sysname) == len)
 		return;
+
+#ifdef HAVE_SYSCTLBYNAME
 	snprintf(devname, len + 1, "%s", sysname);
 	unit = sysname + len;
 
@@ -576,11 +597,10 @@ set_parent(struct udev_device *ud)
 			prod = 0;
 		}
 		bus = BUS_I8042;
-	} else {
-		vendor = 0;
-		prod = 0;
-		bus = BUS_VIRTUAL;
 	}
+#else
+	strlcpy(name, sysname, sizeof(name));
+#endif
 	snprintf(product, sizeof(product), "%x/%x/%x/0", bus, vendor, prod);
 	parent = create_xorg_parent(ud, sysname, name, product, pnp_id);
 	if (parent != NULL)

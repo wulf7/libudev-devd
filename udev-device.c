@@ -34,7 +34,9 @@
 #include "utils.h"
 
 #include <sys/types.h>
+#ifdef HAVE_SYSCTLBYNAME
 #include <sys/sysctl.h>
+#endif
 #include <sys/stat.h>
 #ifdef __linux__
 #include <sys/sysmacros.h>
@@ -80,7 +82,7 @@ udev_device_new_from_devnum(struct udev *udev, char type, dev_t devnum)
 	struct udev_device *device, *parent;
 	size_t dev_len;
 	struct stat st;
-	size_t buflen;
+	size_t buflen = sizeof(devbuf);
 
 	dev_len = strlen(devpath);
 	devname_r(devnum, S_IFCHR, devpath + dev_len, sizeof(devpath) - dev_len);
@@ -100,14 +102,14 @@ udev_device_new_from_devnum(struct udev *udev, char type, dev_t devnum)
 		*devbufptr = '.';
 		devbufptr = strchrnul(devbufptr, '/');
 	}
-	snprintf(buf, 32, "%.24s.PCI_ID", devbuf);
-	buflen = 32;
-
-	sysctlbyname(buf, devbuf, &buflen, NULL, 0);
+	snprintf(buf, sizeof(buf), "%.24s.PCI_ID", devbuf);
 
 	device = udev_device_new_common(udev, syspath, UD_ACTION_NONE);
 	parent = udev_device_new_common(udev, syspath, UD_ACTION_NONE);
+#ifdef HAVE_SYSCTLBYNAME
+	sysctlbyname(buf, devbuf, &buflen, NULL, 0);
 	udev_list_insert(&parent->prop_list, "PCI_ID", devbuf);
+#endif
 	udev_device_set_parent(device, parent);
 	return (device);
 }

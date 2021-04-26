@@ -70,6 +70,10 @@ if cc.has_function('strlcpy')
 	config_h.set('HAVE_STRLCPY', '1')
 endif
 
+if cc.has_function('sysctlbyname')
+	config_h.set('HAVE_SYSCTLBYNAME', '1')
+endif
+
 libudevdevd_so_version = '0.0.0'
 # Dependencies
 thread_dep = dependency('threads')
