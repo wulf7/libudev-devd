@@ -71,6 +71,10 @@ int scandir_recursive(char *path, size_t len, struct scan_ctx *ctx);
 #ifdef HAVE_DEVINFO_H
 int scandev_recursive(struct scan_ctx *ctx);
 #endif
+#ifndef HAVE_DEVNAME_R
+char *
+devname_r(dev_t dev, mode_t type, char *buf, int len);
+#endif
 #ifndef HAVE_PIPE2
 int pipe2(int fildes[2], int flags);
 #endif

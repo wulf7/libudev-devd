@@ -25,25 +25,24 @@
  */
 
 #include "config.h"
-#include "utils.h"
 
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <dirent.h>
 #include <errno.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 
 #ifdef HAVE_LIBPROCSTAT_H
 #include <sys/sysctl.h>
-#include <sys/param.h>
 #include <sys/queue.h>
 #include <sys/socket.h>
 #include <kvm.h>
 #include <libprocstat.h>
-#else
-#include <sys/stat.h>
 #endif
 
 #ifdef HAVE_DEVINFO_H
@@ -55,6 +54,8 @@ static pthread_mutex_t devinfo_mtx = PTHREAD_MUTEX_INITIALIZER;
 #ifndef HAVE_PIPE2
 #include <fcntl.h>
 #endif
+
+#include "utils.h"
 
 int
 socket_connect(const char *path)
@@ -309,6 +310,58 @@ scandev_recursive (struct scan_ctx *ctx)
 	return (ret);
 }
 #endif /* HAVE_DEVINFO_H */
+
+#ifndef HAVE_DEVNAME_R
+struct devname_scan_args {
+	dev_t dev;
+	mode_t type;
+	char *buf;
+	int len;
+};
+
+static int
+devname_cb(const char *path, int type, void *args)
+{
+	struct devname_scan_args *sa = args;
+	struct stat st;
+
+	if (sa->type == DTTOIF(type) &&
+	    lstat(path, &st) == 0 &&
+	    st.st_rdev == sa->dev) {
+		strlcpy(sa->buf, path + 5, sa->len);
+		return (-1);
+        }
+        return (0);
+}
+
+char *
+devname_r(dev_t dev, mode_t type, char *buf, int len)
+{
+	char path[PATH_MAX] = "/dev/";
+	struct devname_scan_args args = {
+		.dev = dev,
+		.type = type,
+		.buf = buf,
+		.len = len,
+	};
+	struct scan_ctx ctx = {
+		.recursive = true,
+		.cb = devname_cb,
+		.args = &args,
+	};
+
+	if (dev == NODEV || !(S_ISCHR(type) || S_ISBLK(dev))) {
+		strlcpy(buf, "#NODEV", len);
+		return (buf);
+	}
+	if (scandir_recursive(path, sizeof(path), &ctx) == 0)
+		/* Finally just format it */
+		snprintf(buf, len, "#%c:%#jx",
+		    S_ISCHR(type) ? 'C' : 'B', (uintmax_t)dev);
+
+        return (buf);
+}
+#endif /* !HAVE_DEVNAME_R */
 
 #ifndef HAVE_PIPE2
 int

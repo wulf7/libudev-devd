@@ -58,6 +58,10 @@ if cc.has_header('sys/tree.h')
 	config_h.set('HAVE_SYS_TREE_H', '1')
 endif
 
+if cc.has_function('devname_r')
+	config_h.set('HAVE_DEVNAME_R', '1')
+endif
+
 if cc.has_function('pipe2')
 	config_h.set('HAVE_PIPE2', '1')
 endif
