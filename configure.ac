@@ -8,6 +8,7 @@ AC_CONFIG_AUX_DIR([ac-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_TARGET
 AC_PROG_CC_C99
+AC_GNU_SOURCE
 
 AM_INIT_AUTOMAKE([1.11 foreign no-dist-gzip dist-xz])
 AM_SILENT_RULES([yes])
@@ -27,8 +28,8 @@ AC_CHECK_HEADERS([devinfo.h],
                  [AC_SEARCH_LIBS([devinfo_init], [devinfo])],
                  [],
                  [[@%:@include <devinfo.h>]])
-AC_CHECK_HEADERS([linux/input.h])
-AC_CHECK_FUNCS([pipe2 strchrnul])
+AC_CHECK_HEADERS([dev/hid/hidraw.h linux/input.h sys/tree.h])
+AC_CHECK_FUNCS([devname_r pipe2 strchrnul strlcpy sysctlbyname])
 
 AC_CONFIG_FILES([Makefile
 		 libudev.pc

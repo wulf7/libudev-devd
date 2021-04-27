@@ -3,7 +3,9 @@ ACLOCAL_AMFLAGS =	-I m4
 lib_LTLIBRARIES =	libudev.la
 include_HEADERS =	libudev.h
 
-libudev_la_SOURCES =	udev.c			\
+libudev_la_SOURCES =	tree.h			\
+			udev.c			\
+			udev.h			\
 			udev-device.c		\
 			udev-device.h		\
 			udev-enumerate.c	\
@@ -22,3 +24,6 @@ libudev_la_CFLAGS =	-I$(top_srcdir) -Wall -Werror -fvisibility=hidden
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libudev.pc
+
+EXTRA_DIST =		README			\
+			meson.build
