@@ -2,7 +2,7 @@ AC_PREREQ([2.64])
 
 m4_define([libudev_version], [199])
 
-AC_INIT([libudev],[libudev_version],[https://github.com/FreeBSDDesktop/libudev-devd],[libudev])
+AC_INIT([libudev],[0.4.2],[https://github.com/FreeBSDDesktop/libudev-devd],[libudev-devd])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([ac-aux])
 AC_CONFIG_MACRO_DIR([m4])
