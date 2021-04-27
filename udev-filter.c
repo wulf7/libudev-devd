@@ -25,10 +25,6 @@
  */
 
 #include "config.h"
-#include "libudev.h"
-#include "udev-device.h"
-#include "udev-utils.h"
-#include "udev-filter.h"
 
 #include <sys/types.h>
 #include <sys/queue.h>
@@ -39,6 +35,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "libudev.h"
+#include "udev-device.h"
+#include "udev-utils.h"
+#include "udev-filter.h"
 
 struct udev_filter_entry {
 	int type;

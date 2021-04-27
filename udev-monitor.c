@@ -25,13 +25,6 @@
  */
 
 #include "config.h"
-#include "libudev.h"
-#include "udev.h"
-#include "udev-device.h"
-#include "udev-utils.h"
-#include "udev-filter.h"
-#include "udev-utils.h"
-#include "utils.h"
 
 #include <sys/types.h>
 #include <sys/queue.h>
@@ -45,6 +38,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "libudev.h"
+#include "udev.h"
+#include "udev-device.h"
+#include "udev-utils.h"
+#include "udev-filter.h"
+#include "udev-utils.h"
+#include "utils.h"
 
 #define	DEVD_SOCK_PATH		"/var/run/devd.pipe"
 #define	DEVD_RECONNECT_INTERVAL	1000	/* reconnect after 1 second */

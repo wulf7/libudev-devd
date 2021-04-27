@@ -25,16 +25,18 @@
  */
 
 #include "config.h"
-#include "libudev.h"
-#include "udev-device.h"
-#include "udev-list.h"
-#include "udev-utils.h"
-#include "utils.h"
 
 #include <sys/param.h>
 #include <sys/types.h>
 #ifdef HAVE_SYSCTLBYNAME
 #include <sys/sysctl.h>
+#endif
+
+#ifdef HAVE_DEV_HID_HIDRAW_H
+#include <dev/hid/hidraw.h>
+#endif
+#ifdef HAVE_LINUX_INPUT_H
+#include <linux/input.h>
 #endif
 
 #include <fcntl.h>
@@ -46,12 +48,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef HAVE_DEV_HID_HIDRAW_H
-#include <dev/hid/hidraw.h>
-#endif
+#include "libudev.h"
+#include "udev-device.h"
+#include "udev-list.h"
+#include "udev-utils.h"
+#include "utils.h"
 
 #ifdef HAVE_LINUX_INPUT_H
-#include <linux/input.h>
 #ifndef	BTN_DPAD_UP
 #define	BTN_DPAD_UP	0x220
 #endif

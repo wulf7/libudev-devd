@@ -25,15 +25,16 @@
  */
 
 #include "config.h"
-#include "libudev.h"
-#include "udev-list.h"
-#include "udev-utils.h"
-#include "utils.h"
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "libudev.h"
+#include "udev-list.h"
+#include "udev-utils.h"
+#include "utils.h"
 
 struct udev_list_entry {
 	RB_ENTRY(udev_list_entry) link;

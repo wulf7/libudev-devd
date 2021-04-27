@@ -1,10 +1,6 @@
 #ifndef UDEV_UTILS_H_
 #define UDEV_UTILS_H_
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "libudev.h"
 
 #define	LIBUDEV_EXPORT	__attribute__((visibility("default")))
