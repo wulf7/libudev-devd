@@ -412,9 +412,10 @@ use_ioctl:
 	ERR("sysctl not found, opening device and using ioctl");
 #endif
 
-	fd = path_to_fd(udev_device_get_devnode(ud));
+	fd = open(udev_device_get_devnode(ud), O_RDONLY | O_CLOEXEC);
 	if (fd == -1) {
-		fd = open(udev_device_get_devnode(ud), O_RDONLY | O_CLOEXEC);
+		fd = path_to_fd(udev_device_get_devnode(ud));
+	} else {
 		opened = true;
 	}
 	if (fd == -1)
