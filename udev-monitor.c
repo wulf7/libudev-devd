@@ -41,7 +41,6 @@
 #include <poll.h>
 #include <pthread.h>
 #include <signal.h>
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,7 +61,7 @@ struct udev_monitor_queue_entry {
 };
 
 struct udev_monitor {
-	_Atomic(int) refcount;
+	int refcount;
 	int fds[2];
 	struct udev_filter_head filters;
 	struct udev *udev;
@@ -270,7 +269,7 @@ udev_monitor_new_from_netlink(struct udev *udev, const char *name)
 
 	um->udev = udev;
 	_udev_ref(udev);
-	atomic_init(&um->refcount, 1);
+	um->refcount = 1;
 	udev_filter_init(&um->filters);
 	STAILQ_INIT(&um->queue);
 	pthread_mutex_init(&um->mtx, NULL);
@@ -315,7 +314,7 @@ udev_monitor_ref(struct udev_monitor *um)
 {
 
 	TRC("(%p) refcount=%d", um, um->refcount);
-	atomic_fetch_add(&um->refcount, 1);
+	++um->refcount;
 	return (um);
 }
 
@@ -336,7 +335,7 @@ LIBUDEV_EXPORT void
 udev_monitor_unref(struct udev_monitor *um)
 {
 	TRC("(%p) refcount=%d", um, um->refcount);
-	if (atomic_fetch_sub(&um->refcount, 1) == 1) {
+	if (--um->refcount == 0) {
 		close(um->fds[0]);
 		pthread_join(um->thread, NULL);
 		close(um->fds[1]);

@@ -43,7 +43,6 @@
 #endif
 
 #include <stdarg.h>
-#include <stdatomic.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +50,7 @@
 #include <unistd.h>
 
 struct udev_device {
-	_Atomic(int) refcount;
+	int refcount;
 	struct {
 		unsigned int action : 2;
 		unsigned int is_parent : 1;
@@ -273,7 +272,7 @@ udev_device_new_common(struct udev *udev, const char *syspath, int action)
 	ud->udev = udev;
 	ud->flags.action = action;
 	ud->parent = NULL;
-	atomic_init(&ud->refcount, 1);
+	ud->refcount = 1;
 	strcpy(ud->syspath, syspath);
 	udev_list_init(&ud->prop_list);
 	udev_list_init(&ud->sysattr_list);
@@ -319,7 +318,7 @@ udev_device_ref(struct udev_device *ud)
 	TRC("(%p/%s) %d", ud, ud->syspath, ud->refcount);
 
 	if (!ud->flags.is_parent)
-		atomic_fetch_add(&ud->refcount, 1);
+		++ud->refcount;
 	return (ud);
 }
 
@@ -344,7 +343,7 @@ udev_device_unref(struct udev_device *ud)
 	TRC("(%p/%s) %d", ud, ud->syspath, ud->refcount);
 	if (ud->flags.is_parent)
 		return;
-	if (atomic_fetch_sub(&ud->refcount, 1) == 1)
+	if (--ud->refcount == 0)
 		udev_device_free(ud);
 }
 

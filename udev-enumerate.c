@@ -35,14 +35,13 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 struct udev_enumerate {
-	_Atomic(int) refcount;
+	int refcount;
 	struct udev_filter_head filters;
 	struct udev_list dev_list;
 	struct udev *udev;
@@ -60,7 +59,7 @@ udev_enumerate_new(struct udev *udev)
 
 	ue->udev = udev;
 	udev_ref(udev);
-	atomic_init(&ue->refcount, 1);
+	ue->refcount = 1;
 	udev_filter_init(&ue->filters);
 	udev_list_init(&ue->dev_list);
 
@@ -72,7 +71,7 @@ udev_enumerate_ref(struct udev_enumerate *ue)
 {
 
 	TRC("(%p) refcount=%d", ue, ue->refcount);
-	atomic_fetch_add(&ue->refcount, 1);
+	++ue->refcount;
 	return (ue);
 }
 
@@ -81,7 +80,7 @@ udev_enumerate_unref(struct udev_enumerate *ue)
 {
 
 	TRC("(%p) refcount=%d", ue, ue->refcount);
-	if (atomic_fetch_sub(&ue->refcount, 1) == 1) {
+	if (--ue->refcount == 0) {
 		udev_filter_free(&ue->filters);
 		udev_list_free(&ue->dev_list);
 		udev_unref(ue->udev);

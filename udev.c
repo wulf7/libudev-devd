@@ -30,12 +30,11 @@
 #include "udev-utils.h"
 #include "utils.h"
 
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 struct udev {
-	_Atomic(int) refcount;
+	int refcount;
 	void *userdata;
 };
 
@@ -47,7 +46,7 @@ udev_new(void)
 	TRC();
 	udev = calloc(1, sizeof(struct udev));
 	if (udev) {
-		atomic_init(&udev->refcount, 1);
+		udev->refcount = 1;
 		udev->userdata = NULL;
 	}
 
@@ -58,7 +57,7 @@ struct udev *
 _udev_ref(struct udev *udev)
 {
 
-	atomic_fetch_add(&udev->refcount, 1);
+	++udev->refcount;
 	return udev;
 }
 
@@ -74,7 +73,7 @@ void
 _udev_unref(struct udev *udev)
 {
 
-	if (atomic_fetch_sub(&udev->refcount, 1) == 1)
+	if (--udev->refcount == 0)
 		free(udev);
 }
 
