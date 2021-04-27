@@ -52,13 +52,22 @@
 
 #ifdef HAVE_LINUX_INPUT_H
 #include <linux/input.h>
-#else
+#ifndef	BTN_DPAD_UP
+#define	BTN_DPAD_UP	0x220
+#endif
+#ifndef	BTN_DPAD_RIGHT
+#define	BTN_DPAD_RIGHT	0x223
+#endif
+#ifndef	BTN_SOUTH
+#define	BTN_SOUTH	0x130
+#endif
+#else	/* !HAVE_LINUX_INPUT_H */
 #define	BUS_PCI		0x01
 #define	BUS_USB		0x03
 #define	BUS_VIRTUAL	0x06
 #define	BUS_ISA		0x10
 #define	BUS_I8042	0x11
-#endif
+#endif	/* !HAVE_LINUX_INPUT_H */
 
 #define	PS2_KEYBOARD_VENDOR		0x001
 #define	PS2_KEYBOARD_PRODUCT		0x001
