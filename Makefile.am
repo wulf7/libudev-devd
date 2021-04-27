@@ -22,6 +22,10 @@ libudev_la_SOURCES =	tree.h			\
 libudev_la_LDFLAGS =	-pthread
 libudev_la_CFLAGS =	-I$(top_srcdir) -Wall -Werror -fvisibility=hidden
 
+udev_test_SOURCES = udev-test.c
+udev_test_LDADD = libudev.la
+noinst_PROGRAMS = udev-test
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libudev.pc
 
