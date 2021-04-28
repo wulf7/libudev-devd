@@ -28,9 +28,7 @@
 
 #include <sys/param.h>
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/un.h>
 #include <dirent.h>
 #include <errno.h>
 #include <stdint.h>
@@ -56,27 +54,6 @@ static pthread_mutex_t devinfo_mtx = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "utils.h"
-
-int
-socket_connect(const char *path)
-{
-	struct sockaddr_un sa;
-	int fd;
-
-	fd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
-	if (fd < 0)
-                return (-1);
-
-	sa.sun_family = AF_UNIX;
-	strlcpy(sa.sun_path, path, sizeof(sa.sun_path));
-
-	if (connect(fd, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-		close(fd);
-		return (-1);
-	}
-
-	return (fd);
-}
 
 /*
  * locates the occurrence of last component of the pathname

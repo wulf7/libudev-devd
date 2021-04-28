@@ -65,7 +65,6 @@ struct scan_ctx {
 char *strbase(const char *path);
 char *get_kern_prop_value(const char *buf, const char *prop, size_t *len);
 int match_kern_prop_value(const char *buf, const char *prop, const char *value);
-int socket_connect(const char *path);
 int path_to_fd(const char *path);
 int scandir_recursive(char *path, size_t len, struct scan_ctx *ctx);
 #ifdef HAVE_DEVINFO_H

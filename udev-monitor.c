@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -194,6 +195,10 @@ udev_monitor_thread(void *args)
 	nfds_t nfds;
 	int devd_fd = -1, ret, action, timeout;
 	sigset_t set;
+	const static struct sockaddr_un sa = {
+		.sun_family = AF_UNIX,
+		.sun_path = DEVD_SOCK_PATH,
+	};
 
 	sigfillset(&set);
 	pthread_sigmask(SIG_BLOCK, &set, NULL);
@@ -203,8 +208,12 @@ udev_monitor_thread(void *args)
 	fds[1].events = POLLIN;
 
 	for (;;) {
-		if (devd_fd < 0)
-			devd_fd = socket_connect(DEVD_SOCK_PATH);
+		if (devd_fd < 0 &&
+		    (devd_fd = socket(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0)) >= 0 &&
+		    connect(devd_fd, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+			close(devd_fd);
+			devd_fd = -1;
+		}
 
 		if (devd_fd < 0) {
 			nfds = 1;
