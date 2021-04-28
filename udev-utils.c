@@ -77,7 +77,7 @@
 #define	PS2_MOUSE_VENDOR		0x002
 #define	PS2_MOUSE_GENERIC_PRODUCT	0x001
 
-#ifdef HAVE_LINUX_INPUT_H
+#if defined(HAVE_LINUX_INPUT_H) || defined(HAVE_DEV_HID_HIDRAW_H)
 static const char *virtual_sysname = "uinput";
 #endif
 
