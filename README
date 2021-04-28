@@ -147,24 +147,24 @@ fetch http://xorg.freedesktop.org/releases/individual/driver/xf86-input-libinput
 
 7. Build and install libudev-devd for Linuxolator
 
-install devel/linux-c7-devtools
+install devel/linux-c7-devtools, devel/autoconf and devel/automake
 than compile libudev.so library and install it somewhere under /compat/linux.
 
 To build and install 64-bit library:
 
 cd libudev-devd
 ./autogen.sh
-env PATH=/compat/linux/bin CC="/compat/linux/bin/gcc" CFLAGS="--sysroot /compat/linux" ./configure --libdir=/usr/lib64/shims
+env CC="/compat/linux/bin/gcc" CFLAGS="--sysroot /compat/linux" ./configure --libdir=/usr/lib64/shims
 make
-sudo make install-exec-am DESTDIR=/compat/linux INSTALL=/usr/bin/install MKDIR_P="/bin/mkdir -p"
+sudo make install-exec DESTDIR=/compat/linux
 
 To build and install 32-bit library:
 
 cd libudev-devd
 ./autogen.sh
-env PATH=/compat/linux/bin CC="/compat/linux/bin/gcc" CFLAGS="--sysroot /compat/linux -m32" ./configure --libdir=/usr/lib/shims
+env CC="/compat/linux/bin/gcc" CFLAGS="--sysroot /compat/linux -m32" ./configure --libdir=/usr/lib/shims
 make
-sudo make install-exec-am DESTDIR=/compat/linux INSTALL=/usr/bin/install MKDIR_P="/bin/mkdir -p"
+sudo make install-exec DESTDIR=/compat/linux
 
 To run my_64bit_app or my_32bit_app with libudev overloaded with libudev-devd use
 
