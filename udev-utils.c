@@ -77,30 +77,33 @@
 #define	PS2_MOUSE_VENDOR		0x002
 #define	PS2_MOUSE_GENERIC_PRODUCT	0x001
 
+typedef void (create_node_handler_t)(struct udev_device *udev_device);
+
 #if defined(HAVE_LINUX_INPUT_H) || defined(HAVE_DEV_HID_HIDRAW_H)
 static const char *virtual_sysname = "uinput";
 #endif
 
 #ifdef HAVE_LINUX_INPUT_H
-static void create_evdev_handler(struct udev_device *udev_device);
+static create_node_handler_t	create_evdev_handler;
 #endif
-static void create_keyboard_handler(struct udev_device *udev_device);
-static void create_mouse_handler(struct udev_device *udev_device);
-static void create_joystick_handler(struct udev_device *udev_device);
-static void create_touchpad_handler(struct udev_device *udev_device);
-static void create_touchscreen_handler(struct udev_device *udev_device);
-static void create_sysmouse_handler(struct udev_device *udev_device);
-static void create_kbdmux_handler(struct udev_device *udev_device);
-static void create_drm_handler(struct udev_device *udev_device);
+static create_node_handler_t	create_keyboard_handler;
+static create_node_handler_t	create_mouse_handler;
+static create_node_handler_t	create_joystick_handler;
+static create_node_handler_t	create_touchpad_handler;
+static create_node_handler_t	create_touchscreen_handler;
+static create_node_handler_t	create_sysmouse_handler;
+static create_node_handler_t	create_kbdmux_handler;
+static create_node_handler_t	create_drm_handler;
 #ifdef HAVE_DEV_HID_HIDRAW_H
-static void create_hidraw_handler(struct udev_device *udev_device);
+static create_node_handler_t	create_hidraw_handler;
 #endif
 
+//      char *symlink; /* If syspath is symlink, path it refers to */
 struct subsystem_config {
 	char *subsystem;
 	char *syspath;
 	int flags; /* See SCFLAG_* below. */
-	void (*create_handler)(struct udev_device *udev_device);
+	create_node_handler_t *create_handler;
 };
 
 enum {
