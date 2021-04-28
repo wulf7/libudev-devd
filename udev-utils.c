@@ -81,16 +81,20 @@
 static const char *virtual_sysname = "uinput";
 #endif
 
-void create_evdev_handler(struct udev_device *udev_device);
-void create_keyboard_handler(struct udev_device *udev_device);
-void create_mouse_handler(struct udev_device *udev_device);
-void create_joystick_handler(struct udev_device *udev_device);
-void create_touchpad_handler(struct udev_device *udev_device);
-void create_touchscreen_handler(struct udev_device *udev_device);
-void create_sysmouse_handler(struct udev_device *udev_device);
-void create_kbdmux_handler(struct udev_device *udev_device);
-void create_drm_handler(struct udev_device *udev_device);
-void create_hidraw_handler(struct udev_device *udev_device);
+#ifdef HAVE_LINUX_INPUT_H
+static void create_evdev_handler(struct udev_device *udev_device);
+#endif
+static void create_keyboard_handler(struct udev_device *udev_device);
+static void create_mouse_handler(struct udev_device *udev_device);
+static void create_joystick_handler(struct udev_device *udev_device);
+static void create_touchpad_handler(struct udev_device *udev_device);
+static void create_touchscreen_handler(struct udev_device *udev_device);
+static void create_sysmouse_handler(struct udev_device *udev_device);
+static void create_kbdmux_handler(struct udev_device *udev_device);
+static void create_drm_handler(struct udev_device *udev_device);
+#ifdef HAVE_DEV_HID_HIDRAW_H
+static void create_hidraw_handler(struct udev_device *udev_device);
+#endif
 
 struct subsystem_config {
 	char *subsystem;
@@ -115,7 +119,7 @@ enum {
  * already exposed through EVDEV when it's enabled. */
 #define	SCFLAG_SKIP_IF_EVDEV	0x01
 
-struct subsystem_config subsystems[] = {
+static const struct subsystem_config subsystems[] = {
 #ifdef HAVE_LINUX_INPUT_H
 	{ "input", DEV_PATH_ROOT "/input/event[0-9]*",
 		0,
@@ -164,7 +168,7 @@ struct subsystem_config subsystems[] = {
 #endif
 };
 
-static struct subsystem_config *
+static const struct subsystem_config *
 get_subsystem_config_by_syspath(const char *path)
 {
 	size_t i;
@@ -201,7 +205,7 @@ kernel_has_evdev_enabled()
 const char *
 get_subsystem_by_syspath(const char *syspath)
 {
-	struct subsystem_config *sc;
+	const struct subsystem_config *sc;
 
 	sc = get_subsystem_config_by_syspath(syspath);
 	if (sc == NULL)
@@ -239,7 +243,7 @@ void
 invoke_create_handler(struct udev_device *ud)
 {
 	const char *path;
-	struct subsystem_config *sc;
+	const struct subsystem_config *sc;
 
 	path = udev_device_get_syspath(ud);
 	sc = get_subsystem_config_by_syspath(path);
@@ -341,7 +345,7 @@ bit_find(const unsigned long *array, int start, int stop)
 	return false;
 }
 
-void
+static void
 create_evdev_handler(struct udev_device *ud)
 {
 	struct udev_device *parent;
@@ -541,7 +545,7 @@ syspathlen_wo_units(const char *path) {
 	return len;
 }
 
-void
+static void
 set_parent(struct udev_device *ud)
 {
 	struct udev_device *parent;
@@ -623,7 +627,7 @@ set_parent(struct udev_device *ud)
 	return;
 }
 
-void
+static void
 create_keyboard_handler(struct udev_device *ud)
 {
 
@@ -631,7 +635,7 @@ create_keyboard_handler(struct udev_device *ud)
 	set_parent(ud);
 }
 
-void
+static void
 create_mouse_handler(struct udev_device *ud)
 {
 
@@ -639,7 +643,7 @@ create_mouse_handler(struct udev_device *ud)
 	set_parent(ud);
 }
 
-void
+static void
 create_kbdmux_handler(struct udev_device *ud)
 {
 	struct udev_device *parent;
@@ -653,7 +657,7 @@ create_kbdmux_handler(struct udev_device *ud)
 		udev_device_set_parent(ud, parent);
 }
 
-void
+static void
 create_sysmouse_handler(struct udev_device *ud)
 {
 	struct udev_device *parent;
@@ -667,7 +671,7 @@ create_sysmouse_handler(struct udev_device *ud)
 		udev_device_set_parent(ud, parent);
 }
 
-void
+static void
 create_joystick_handler(struct udev_device *ud)
 {
 
@@ -675,7 +679,7 @@ create_joystick_handler(struct udev_device *ud)
 	set_parent(ud);
 }
 
-void
+static void
 create_touchpad_handler(struct udev_device *ud)
 {
 
@@ -683,14 +687,15 @@ create_touchpad_handler(struct udev_device *ud)
 	set_parent(ud);
 }
 
-void create_touchscreen_handler(struct udev_device *ud)
+static void
+create_touchscreen_handler(struct udev_device *ud)
 {
 
 	set_input_device_type(ud, IT_TOUCHSCREEN);
 	set_parent(ud);
 }
 
-void
+static void
 create_drm_handler(struct udev_device *ud)
 {
 	udev_list_insert(udev_device_get_properties_list(ud), "HOTPLUG", "1");
@@ -698,7 +703,8 @@ create_drm_handler(struct udev_device *ud)
 }
 
 #ifdef HAVE_DEV_HID_HIDRAW_H
-void create_hidraw_handler(struct udev_device *ud)
+static void
+create_hidraw_handler(struct udev_device *ud)
 {
 	char name[80], phys[80], uniq[32];
 	const char *sysname;
