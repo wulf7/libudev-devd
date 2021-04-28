@@ -193,6 +193,7 @@ udev_monitor_thread(void *args)
 	char ev[1024], syspath[DEV_PATH_MAX];
 	struct pollfd fds[2];
 	nfds_t nfds;
+	ssize_t len;
 	int devd_fd = -1, ret, action, timeout;
 	sigset_t set;
 	const static struct sockaddr_un sa = {
@@ -239,11 +240,14 @@ udev_monitor_thread(void *args)
 			continue;
 
 		if (fds[1].revents & POLLIN) {
-			if (recv(devd_fd, ev, sizeof(ev), MSG_WAITALL) < 0) {
+			if ((len = recv(devd_fd, ev, sizeof(ev), MSG_WAITALL))
+			    <= 0) {
 				close(devd_fd);
 				devd_fd = -1;
 				continue;
 			}
+			/* Replace terminating LF with 0 to make C-string */
+			ev[len - 1] = '\0';
 			action = parse_devd_message(ev, syspath, sizeof(syspath));
 			if (action != UD_ACTION_NONE &&
 			    udev_filter_match(um->udev, &um->filters, syspath))
