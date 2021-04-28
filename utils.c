@@ -63,7 +63,7 @@ socket_connect(const char *path)
 	struct sockaddr_un sa;
 	int fd;
 
-	fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	fd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
 	if (fd < 0)
                 return (-1);
 
@@ -76,23 +76,6 @@ socket_connect(const char *path)
 	}
 
 	return (fd);
-}
-
-ssize_t
-socket_readline(int fd, char *buf, size_t len)
-{
-	size_t pos;
-
-	for (pos = 0; pos < len; ++pos) {
-		if (read(fd, buf + pos, 1) < 1)
-			return (-1);
-
-		if (buf[pos] == 0 || buf[pos] == '\n') {
-			buf[pos] = 0;
-			return (pos);
-		}
-	}
-	return (-1);
 }
 
 /*

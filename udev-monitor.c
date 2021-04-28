@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 #include <sys/queue.h>
+#include <sys/socket.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -47,7 +48,7 @@
 #include "udev-utils.h"
 #include "utils.h"
 
-#define	DEVD_SOCK_PATH		"/var/run/devd.pipe"
+#define	DEVD_SOCK_PATH		"/var/run/devd.seqpacket.pipe"
 #define	DEVD_RECONNECT_INTERVAL	1000	/* reconnect after 1 second */
 
 #define	DEVD_EVENT_ATTACH	'+'
@@ -229,7 +230,7 @@ udev_monitor_thread(void *args)
 			continue;
 
 		if (fds[1].revents & POLLIN) {
-			if (socket_readline(devd_fd, ev, sizeof(ev)) < 0) {
+			if (recv(devd_fd, ev, sizeof(ev), MSG_WAITALL) < 0) {
 				close(devd_fd);
 				devd_fd = -1;
 				continue;
