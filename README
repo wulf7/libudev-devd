@@ -8,6 +8,7 @@ Installation:
 1. Install multimedia/v4l_compat port. In case of evdev-enabled kernels it
    can be patched to use system evdev headers instead of webcamd-supplied
 
+
 2. Build and install libudev-devd
 
 export CFLAGS=-I/usr/local/include
@@ -17,12 +18,14 @@ cd libudev-devd
 ./configure
 make && sudo make install
 
+
 3. recompile x11-servers/xorg-server with DEVD port option disabled and
 following configure args added: --enable-config-udev=yes \
     --disable-config-udev-kms --disable-systemd-logind
 
 If you are going to use /dev/kbdmux0 as keyboard input device patch[1] should
 be applied to config/udev.c file in xorg distribution
+
 
 4. Apply changes to xorg.conf
 
@@ -120,6 +123,7 @@ EndSection
 
 <<<CUT
 
+
 5. Fetch and install libinput port by Jan Kokemuller???
 
 For gsoc2014 evdev-enabled kernels only:
@@ -130,6 +134,7 @@ cd libinput-master
 ./autogen.sh
 make && sudo make install
 
+
 6. Fetch and install xf86-input-libinput
 
 For gsoc2014 evdev-enabled kernels only:
@@ -139,7 +144,38 @@ fetch http://xorg.freedesktop.org/releases/individual/driver/xf86-input-libinput
 ..
 ..
 
-7. Appendix
+
+7. Build and install libudev-devd for Linuxolator
+
+install devel/linux-c7-devtools
+than compile libudev.so library and install it somewhere under /compat/linux.
+
+To build and install 64-bit library:
+
+cd libudev-devd
+./autogen.sh
+env PATH=/compat/linux/bin CC="/compat/linux/bin/gcc" CFLAGS="--sysroot /compat/linux" ./configure --libdir=/usr/lib64/shims
+make
+sudo make install-exec-am DESTDIR=/compat/linux INSTALL=/usr/bin/install MKDIR_P="/bin/mkdir -p"
+
+To build and install 32-bit library:
+
+cd libudev-devd
+./autogen.sh
+env PATH=/compat/linux/bin CC="/compat/linux/bin/gcc" CFLAGS="--sysroot /compat/linux -m32" ./configure --libdir=/usr/lib/shims
+make
+sudo make install-exec-am DESTDIR=/compat/linux INSTALL=/usr/bin/install MKDIR_P="/bin/mkdir -p"
+
+To run my_64bit_app or my_32bit_app with libudev overloaded with libudev-devd use
+
+LD_PRELOAD=/usr/lib64/shims/libudev.so my_64bit_app
+
+or
+
+LD_PRELOAD=/usr/lib/shims/libudev.so my_32bit_app
+
+
+8. Appendix
 
 [1] config/udev.c patch. Just place content between two <<<CUTs as
 /usr/ports/x11-servers/xorg-server/files/patch-config_udev.c file
