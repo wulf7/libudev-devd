@@ -49,7 +49,7 @@ do {									\
 #define	nitems(x)	(sizeof((x)) / sizeof((x)[0]))
 #endif
 
-typedef int (* scan_cb_t) (const char *path, int type, void *args);
+typedef int (* scan_cb_t)(const char *path, mode_t type, ino_t fileno, void *args);
 
 /* If .recursive is true, then .cb gets called for non-dir
  * paths, an the overall scandir is recursive. If .recursive
@@ -71,8 +71,7 @@ int scandir_recursive(char *path, size_t len, struct scan_ctx *ctx);
 int scandev_recursive(struct scan_ctx *ctx);
 #endif
 #ifndef HAVE_DEVNAME_R
-char *
-devname_r(dev_t dev, mode_t type, char *buf, int len);
+char *devname_r(dev_t dev, mode_t type, char *buf, int len);
 #endif
 #ifndef HAVE_PIPE2
 int pipe2(int fildes[2], int flags);

@@ -41,7 +41,6 @@
 #endif
 
 #include <assert.h>
-#include <dirent.h>
 #include <fcntl.h>
 #include <fnmatch.h>
 #include <stdbool.h>
@@ -276,12 +275,12 @@ get_syspath_by_devpath(const char *devpath)
 }
 
 static int
-get_syspath_by_devnum_cb(const char *path, int type, void *args)
+get_syspath_by_devnum_cb(const char *path, mode_t type, ino_t fileno, void *args)
 {
 	struct devnum_scan_args *sa = args;
 	struct stat st;
 
-	if (type == DT_LNK &&
+	if (S_ISLNK(type) &&
 	    fnmatch(sa->pattern, path, 0) == 0 &&
 	    stat(path, &st) == 0 &&
 	    st.st_rdev == sa->devnum) {
@@ -301,15 +300,27 @@ get_syspath_by_devnum(dev_t devnum)
 	struct devnum_scan_args args;
 	const char *linkbase;
 	size_t dev_len, linkdir_len, i;
+	dev_t scan_devnum;
 
 	dev_len = strlen(devpath);
 	devname_r(devnum, S_IFCHR, devpath + dev_len, sizeof(devpath) - dev_len);
-
-	/* Recheck path as devname_r returns zero-terminated garbage on error */
-	if (stat(devpath, &st) != 0 || st.st_rdev != devnum) {
-		TRC("(%d) -> failed", (int)devnum);
+	/* On failure devname_r returns a string starting with' #' */
+	if (devpath[dev_len] == '#' || stat(devpath, &st) != 0) {
+		TRC("(%d) -> failed\n", (int)devnum);
 		return NULL;
 	}
+
+	/*
+	 * Sometimes Linuxolator's stat() fakes device number to match Linux's
+	 * minor and major. Take this faked number into account.
+	 */
+#ifndef __linux__
+	if (devnum != st.st_rdev) {
+		TRC("(%d) -> failed\n", (int)devnum);
+		return (NULL);
+	}
+#endif
+	scan_devnum = st.st_rdev;
 
 	/* Resolve symlink in reverse direction if necessary */
 	for (i = 0; i < nitems(subsystems); i++) {
@@ -322,7 +333,7 @@ get_syspath_by_devnum(dev_t devnum)
 				linkdir_len = sizeof(linkdir);
 			strlcpy(linkdir, subsystems[i].syspath, linkdir_len + 1);
 			args = (struct devnum_scan_args) {
-				.devnum = devnum,
+				.devnum = scan_devnum,
 				.pattern = subsystems[i].syspath,
 				.path = devpath,
 				.len = sizeof(devpath),
@@ -337,6 +348,7 @@ get_syspath_by_devnum(dev_t devnum)
 		}
 	}
 
+	TRC("(%d) -> %s\n", (int)devnum, devpath);
 	return (strdup(devpath));
 }
 

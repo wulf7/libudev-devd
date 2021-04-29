@@ -27,8 +27,8 @@
 #include "config.h"
 
 #include <sys/types.h>
+#include <sys/stat.h>
 
-#include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -170,12 +170,12 @@ udev_enumerate_add_match_is_initialized(struct udev_enumerate *ue)
 }
 
 static int
-enumerate_cb(const char *path, int type, void *arg)
+enumerate_cb(const char *path, mode_t type, ino_t fileno, void *arg)
 {
 	struct udev_enumerate *ue = arg;
 	const char *syspath;
 
-	if (type == DT_LNK || type == DT_CHR) {
+	if (S_ISLNK(type) || S_ISCHR(type)) {
 		syspath = get_syspath_by_devpath(path);
 		if (udev_filter_match(ue->udev, &ue->filters, syspath) &&
 		    udev_list_insert(&ue->dev_list, syspath, NULL) == -1)
@@ -208,22 +208,6 @@ udev_enumerate_scan_devices(struct udev_enumerate *ue)
 	if (ret == -1)
 		udev_list_free(&ue->dev_list);
 	return ret;
-}
-
-/*
- * Enumerate subsystems -- under /sys/modules, /sys/dev, only
- * list the directories.
- */
-static int __attribute__((unused))
-enumerate_ssys_cb(const char *path, int type, void *arg)
-{
-	struct udev_enumerate *ue = arg;
-
-	if (type == DT_DIR) {
-		if (udev_list_insert(&ue->dev_list, path, NULL) == -1)
-			return (-1);
-	}
-	return (0);
 }
 
 LIBUDEV_EXPORT int

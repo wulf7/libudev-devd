@@ -211,7 +211,8 @@ scandir_sub(char *path, int off, int rem, struct scan_ctx *ctx)
 			off--;
 			rem++;
 		} else {
-			ret = (ctx->cb)(path, ent->d_type, ctx->args);
+			ret = (ctx->cb)(path, DTTOIF(ent->d_type),
+			    ent->d_fileno, ctx->args);
 		}
 		off -= len;
 		rem += len;
@@ -280,14 +281,26 @@ struct devname_scan_args {
 };
 
 static int
-devname_cb(const char *path, int type, void *args)
+devname_cb(const char *path, mode_t type, ino_t fileno, void *args)
 {
 	struct devname_scan_args *sa = args;
+#if 0
 	struct stat st;
+#endif
 
-	if (sa->type == DTTOIF(type) &&
+	if (sa->type == type &&
+#if 0
+	    /*
+	     * On Linuxolator st.st_rdev contains Linux device major and minor
+	     * numbers while fileno still contains FreeBSD device numbers.
+	     * XXX: It is not clear which one we should use.
+	     */
 	    lstat(path, &st) == 0 &&
-	    st.st_rdev == sa->dev) {
+	    st.st_rdev == sa->dev
+#else
+	    fileno ==  sa->dev
+#endif
+	) {
 		strlcpy(sa->buf, path + 5, sa->len);
 		return (-1);
         }
