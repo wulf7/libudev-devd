@@ -123,51 +123,73 @@ enum {
 #define	SCFLAG_SKIP_IF_EVDEV	0x01
 
 static const struct subsystem_config subsystems[] = {
+	{
 #ifdef HAVE_LINUX_INPUT_H
-	{ "input", DEV_PATH_ROOT "/input/event[0-9]*",
-		0,
-		create_evdev_handler },
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/input/event[0-9]*",
+		.create_handler = create_evdev_handler
+	}, {
 #endif
-	{ "input", DEV_PATH_ROOT "/ukbd[0-9]*",
-		SCFLAG_SKIP_IF_EVDEV,
-		create_keyboard_handler },
-	{ "input", DEV_PATH_ROOT "/atkbd[0-9]*",
-		SCFLAG_SKIP_IF_EVDEV,
-		create_keyboard_handler },
-	{ "input", DEV_PATH_ROOT "/kbdmux[0-9]*",
-		SCFLAG_SKIP_IF_EVDEV,
-		create_kbdmux_handler },
-	{ "input", DEV_PATH_ROOT "/ums[0-9]*",
-		SCFLAG_SKIP_IF_EVDEV,
-		create_mouse_handler },
-	{ "input", DEV_PATH_ROOT "/psm[0-9]*",
-		SCFLAG_SKIP_IF_EVDEV,
-		create_mouse_handler },
-	{ "input", DEV_PATH_ROOT "/joy[0-9]*",
-		0,
-		create_joystick_handler },
-	{ "input", DEV_PATH_ROOT "/atp[0-9]*",
-		0,
-		create_touchpad_handler },
-	{ "input", DEV_PATH_ROOT "/wsp[0-9]*",
-		0,
-		create_touchpad_handler },
-	{ "input", DEV_PATH_ROOT "/uep[0-9]*",
-		0,
-		create_touchscreen_handler },
-	{ "input", DEV_PATH_ROOT "/sysmouse",
-		SCFLAG_SKIP_IF_EVDEV,
-		create_sysmouse_handler },
-	{ "input", DEV_PATH_ROOT "/vboxguest",
-		0,
-		create_mouse_handler },
-	{ "drm", DEV_PATH_ROOT "/dri/card[0-9]*",
-		0,
-		create_drm_handler },
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/ukbd[0-9]*",
+		.flags = SCFLAG_SKIP_IF_EVDEV,
+		.create_handler = create_keyboard_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/atkbd[0-9]*",
+		.flags = SCFLAG_SKIP_IF_EVDEV,
+		.create_handler = create_keyboard_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/kbdmux[0-9]*",
+		.flags = SCFLAG_SKIP_IF_EVDEV,
+		.create_handler = create_kbdmux_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/ums[0-9]*",
+		.flags = SCFLAG_SKIP_IF_EVDEV,
+		.create_handler = create_mouse_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/psm[0-9]*",
+		.flags = SCFLAG_SKIP_IF_EVDEV,
+		.create_handler = create_mouse_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/joy[0-9]*",
+		.create_handler = create_joystick_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/atp[0-9]*",
+		.create_handler = create_touchpad_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/wsp[0-9]*",
+		.create_handler = create_touchpad_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/uep[0-9]*",
+		.create_handler = create_touchscreen_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/sysmouse",
+		.flags = SCFLAG_SKIP_IF_EVDEV,
+		.create_handler = create_sysmouse_handler,
+	}, {
+		.subsystem = "input",
+		.syspath = DEV_PATH_ROOT "/vboxguest",
+		.create_handler = create_mouse_handler,
+	}, {
+		.subsystem = "drm",
+		.syspath = DEV_PATH_ROOT "/dri/card[0-9]*",
+		.create_handler = create_drm_handler,
+	},
 #ifdef HAVE_DEV_HID_HIDRAW_H
-	{ "hidraw", DEV_PATH_ROOT "/hidraw[0-9]*",
-		0,
-		create_hidraw_handler },
+	{
+		.subsystem = "hidraw",
+		.syspath = DEV_PATH_ROOT "/hidraw[0-9]*",
+		.create_handler = create_hidraw_handler,
+	},
 #endif
 };
 
