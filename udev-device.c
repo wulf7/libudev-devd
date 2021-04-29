@@ -26,9 +26,6 @@
 
 #include "config.h"
 #include <sys/types.h>
-#ifdef HAVE_SYSCTLBYNAME
-#include <sys/sysctl.h>
-#endif
 #include <sys/stat.h>
 #ifdef __linux__
 #include <sys/sysmacros.h>
@@ -75,41 +72,17 @@ udev_device_new_from_syspath(struct udev *udev, const char *syspath)
 LIBUDEV_EXPORT struct udev_device *
 udev_device_new_from_devnum(struct udev *udev, char type, dev_t devnum)
 {
-	char devpath[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
-	char devbuf[32], buf[32], *devbufptr;
 	const char *syspath;
-	struct udev_device *device, *parent;
-	size_t dev_len;
-	struct stat st;
-	size_t buflen = sizeof(devbuf);
+	struct udev_device *device;
 
-	dev_len = strlen(devpath);
-	devname_r(devnum, S_IFCHR, devpath + dev_len, sizeof(devpath) - dev_len);
-
-	/* Recheck path as devname_r returns zero-terminated garbage on error */
-	if (stat(devpath, &st) != 0 || st.st_rdev != devnum) {
-		TRC("(%d) -> failed", (int)devnum);
-		return NULL;
-	}
-
-	TRC("(%d) -> %s", (int)devnum, devpath);
-	syspath = get_syspath_by_devpath(devpath);
-	strlcpy(devbuf, devpath + 1, buflen);
-	devbufptr = devbuf;
-	devbufptr = strchrnul(devbufptr, '/');
-	while (*devbufptr != '\0') {
-		*devbufptr = '.';
-		devbufptr = strchrnul(devbufptr, '/');
-	}
-	snprintf(buf, sizeof(buf), "%.24s.PCI_ID", devbuf);
+	syspath = get_syspath_by_devnum(devnum);
+	TRC("(%d) -> %s", (int)devnum, syspath != NULL ? syspath : "not found");
+	if (syspath == NULL)
+		return (NULL);
 
 	device = udev_device_new_common(udev, syspath, UD_ACTION_NONE);
-	parent = udev_device_new_common(udev, syspath, UD_ACTION_NONE);
-#ifdef HAVE_SYSCTLBYNAME
-	sysctlbyname(buf, devbuf, &buflen, NULL, 0);
-	udev_list_insert(&parent->prop_list, "PCI_ID", devbuf);
-#endif
-	udev_device_set_parent(device, parent);
+	free((void *)syspath);
+
 	return (device);
 }
 

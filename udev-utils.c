@@ -28,6 +28,7 @@
 
 #include <sys/param.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #ifdef HAVE_SYSCTLBYNAME
 #include <sys/sysctl.h>
 #endif
@@ -39,6 +40,8 @@
 #include <linux/input.h>
 #endif
 
+#include <assert.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <fnmatch.h>
 #include <stdbool.h>
@@ -98,10 +101,17 @@ static create_node_handler_t	create_drm_handler;
 static create_node_handler_t	create_hidraw_handler;
 #endif
 
-//      char *symlink; /* If syspath is symlink, path it refers to */
+struct devnum_scan_args {
+	dev_t	devnum;
+	char *	pattern;
+	char *	path;
+	size_t	len;
+};
+
 struct subsystem_config {
 	char *subsystem;
 	char *syspath;
+	char *symlink; /* If syspath is symlink, path it refers to */
 	int flags; /* See SCFLAG_* below. */
 	create_node_handler_t *create_handler;
 };
@@ -182,6 +192,7 @@ static const struct subsystem_config subsystems[] = {
 	}, {
 		.subsystem = "drm",
 		.syspath = DEV_PATH_ROOT "/dri/card[0-9]*",
+		.symlink = DEV_PATH_ROOT "/drm/[0-9]*",
 		.create_handler = create_drm_handler,
 	},
 #ifdef HAVE_DEV_HID_HIDRAW_H
@@ -262,6 +273,71 @@ get_syspath_by_devpath(const char *devpath)
 {
 
 	return (devpath);
+}
+
+static int
+get_syspath_by_devnum_cb(const char *path, int type, void *args)
+{
+	struct devnum_scan_args *sa = args;
+	struct stat st;
+
+	if (type == DT_LNK &&
+	    fnmatch(sa->pattern, path, 0) == 0 &&
+	    stat(path, &st) == 0 &&
+	    st.st_rdev == sa->devnum) {
+		strlcpy(sa->path, path, sa->len);
+		return (-1);
+	}
+	return (0);
+}
+
+const char *
+get_syspath_by_devnum(dev_t devnum)
+{
+	char devpath[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
+	char linkdir[DEV_PATH_MAX];
+	struct stat st;
+	struct scan_ctx ctx;
+	struct devnum_scan_args args;
+	const char *linkbase;
+	size_t dev_len, linkdir_len, i;
+
+	dev_len = strlen(devpath);
+	devname_r(devnum, S_IFCHR, devpath + dev_len, sizeof(devpath) - dev_len);
+
+	/* Recheck path as devname_r returns zero-terminated garbage on error */
+	if (stat(devpath, &st) != 0 || st.st_rdev != devnum) {
+		TRC("(%d) -> failed", (int)devnum);
+		return NULL;
+	}
+
+	/* Resolve symlink in reverse direction if necessary */
+	for (i = 0; i < nitems(subsystems); i++) {
+		if (subsystems[i].symlink != NULL &&
+		    fnmatch(subsystems[i].symlink, devpath, 0) == 0) {
+			linkbase = strbase(subsystems[i].syspath);
+			assert(linkbase != NULL);
+			linkdir_len = linkbase - subsystems[i].syspath;
+			if (linkdir_len >= sizeof(linkdir))
+				linkdir_len = sizeof(linkdir);
+			strlcpy(linkdir, subsystems[i].syspath, linkdir_len + 1);
+			args = (struct devnum_scan_args) {
+				.devnum = devnum,
+				.pattern = subsystems[i].syspath,
+				.path = devpath,
+				.len = sizeof(devpath),
+			};
+			ctx = (struct scan_ctx) {
+				.recursive = false,
+				.cb = get_syspath_by_devnum_cb,
+				.args = &args,
+			};
+			if (scandir_recursive(linkdir, sizeof(linkdir), &ctx) == -1)
+				break;
+		}
+	}
+
+	return (strdup(devpath));
 }
 
 void
@@ -723,8 +799,38 @@ create_touchscreen_handler(struct udev_device *ud)
 static void
 create_drm_handler(struct udev_device *ud)
 {
+	const char *sysname, *devpath;
+	struct udev_device *parent;
+#ifdef HAVE_SYSCTLBYNAME
+	char devbuf[PATH_MAX], buf[32], *devbufptr;
+	size_t buflen = sizeof(devbuf);
+#endif
+
 	udev_list_insert(udev_device_get_properties_list(ud), "HOTPLUG", "1");
-	set_parent(ud);
+	devpath = udev_device_get_devnode(ud);
+	if (devpath == NULL)
+		return;
+
+	sysname = udev_device_get_sysname(ud);
+	parent = create_xorg_parent(ud, sysname, "drm parent", NULL, NULL);
+	if (parent == NULL)
+		return;
+
+	udev_device_set_parent(ud, parent);
+
+#ifdef HAVE_SYSCTLBYNAME
+	realpath(devpath, devbuf);
+	devbufptr = devbuf + 1;
+	devbufptr = strchrnul(devbufptr, '/');
+	while (*devbufptr != '\0') {
+		*devbufptr = '.';
+		devbufptr = strchrnul(devbufptr, '/');
+	}
+	snprintf(buf, sizeof(buf), "%.24s.PCI_ID", devbuf + 1);
+	if (sysctlbyname(buf, devbuf, &buflen, NULL, 0) == 0){
+		udev_list_insert(
+		    udev_device_get_properties_list(parent), "PCI_ID", devbuf);}
+#endif
 }
 
 #ifdef HAVE_DEV_HID_HIDRAW_H

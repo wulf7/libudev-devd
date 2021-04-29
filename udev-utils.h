@@ -15,6 +15,7 @@ const char *get_subsystem_by_syspath(const char *syspath);
 const char *get_sysname_by_syspath(const char *syspath);
 const char *get_devpath_by_syspath(const char *syspath);
 const char *get_syspath_by_devpath(const char *devpath);
+const char *get_syspath_by_devnum(dev_t devnum);
 
 void invoke_create_handler(struct udev_device *ud);
 size_t syspathlen_wo_units(const char *path);
