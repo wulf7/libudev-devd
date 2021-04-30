@@ -170,7 +170,7 @@ udev_enumerate_add_match_is_initialized(struct udev_enumerate *ue)
 }
 
 static int
-enumerate_cb(const char *path, mode_t type, ino_t fileno, void *arg)
+enumerate_cb(const char *path, mode_t type, void *arg)
 {
 	struct udev_enumerate *ue = arg;
 	const char *syspath;

@@ -392,7 +392,7 @@ udev_device_get_devnum(struct udev_device *ud)
 	    !S_ISCHR(st.st_mode))
 		return (makedev(0, 0));
 
-	return (st.st_rdev);
+	return (st.ST_RDEV);
 }
 
 LIBUDEV_EXPORT const char *

@@ -49,7 +49,21 @@ do {									\
 #define	nitems(x)	(sizeof((x)) / sizeof((x)[0]))
 #endif
 
-typedef int (* scan_cb_t)(const char *path, mode_t type, ino_t fileno, void *args);
+/*
+ * On Linuxolator st.st_rdev returned by stat() contains faked Linux device
+ * major/minor numbers while st.ino still contains FreeBSD native numbers.
+ * Choose which one we will use in udev_device_get_devnum() and
+ * udev_device_new_from_devnum() calls.
+ */
+/* #define	ENABLE_FREEBSD_DEVNUM	1 */
+
+#ifdef ENABLE_FREEBSD_DEVNUM
+#define	ST_RDEV	st_ino
+#else
+#define	ST_RDEV	st_rdev
+#endif
+
+typedef int (* scan_cb_t)(const char *path, mode_t type, void *args);
 
 /* If .recursive is true, then .cb gets called for non-dir
  * paths, an the overall scandir is recursive. If .recursive
