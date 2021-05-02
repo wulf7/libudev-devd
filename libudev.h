@@ -19,6 +19,11 @@ void udev_unref(struct udev *udev);
 const char *udev_get_dev_path(struct udev *udev);
 void *udev_get_userdata(struct udev *udev);
 void udev_set_userdata(struct udev *udev, void *userdata);
+void udev_set_log_fn(struct udev *udev, void (*log_fn)(struct udev *udev,
+    int priority, const char *file, int line, const char *fn,
+    const char *format, va_list args));
+void udev_set_log_priority(struct udev *udev, int priority);
+int udev_get_log_priority(struct udev *udev);
 
 struct udev_device *udev_device_new_from_syspath(struct udev *udev,
     const char *syspath);

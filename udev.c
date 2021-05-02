@@ -109,3 +109,24 @@ udev_set_userdata(struct udev *udev, void *userdata)
 	TRC();
 	udev->userdata = userdata;
 }
+
+LIBUDEV_EXPORT void
+udev_set_log_fn(struct udev *udev, void (*log_fn)(struct udev *udev,
+    int priority, const char *file, int line, const char *fn,
+    const char *format, va_list args))
+{
+	UNIMPL();
+}
+
+LIBUDEV_EXPORT void
+udev_set_log_priority(struct udev *udev, int priority)
+{
+	UNIMPL();
+}
+
+LIBUDEV_EXPORT int
+udev_get_log_priority(struct udev *udev)
+{
+	UNIMPL();
+	return (0);
+}
