@@ -33,13 +33,6 @@
 #include <sys/sysctl.h>
 #endif
 
-#ifdef HAVE_DEV_HID_HIDRAW_H
-#include <dev/hid/hidraw.h>
-#endif
-#ifdef HAVE_LINUX_INPUT_H
-#include <linux/input.h>
-#endif
-
 #include <assert.h>
 #include <fcntl.h>
 #include <fnmatch.h>
@@ -49,6 +42,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifdef HAVE_DEV_HID_HIDRAW_H
+#include <dev/hid/hidraw.h>
+#endif
+#ifdef HAVE_LINUX_INPUT_H
+#include <linux/input.h>
+#endif
 
 #include "libudev.h"
 #include "udev-device.h"
