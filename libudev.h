@@ -2,6 +2,7 @@
 #define LIBUDEV_H_
 
 #include <sys/types.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
