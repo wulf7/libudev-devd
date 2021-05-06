@@ -85,6 +85,8 @@ int udev_enumerate_add_match_property(struct udev_enumerate *udev_enumerate,
     const char *property, const char *value);
 int udev_enumerate_add_match_tag(struct udev_enumerate *udev_enumerate,
     const char *tag);
+int udev_enumerate_add_match_parent(struct udev_enumerate *udev_enumerate,
+    struct udev_device *parent);
 int udev_enumerate_add_match_is_initialized(
     struct udev_enumerate *udev_enumerate);
 int udev_enumerate_scan_devices(struct udev_enumerate *udev_enumerate);

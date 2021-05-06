@@ -159,7 +159,14 @@ udev_enumerate_add_match_tag(struct udev_enumerate *ue, const char *tag)
 	    NULL));
 }
 
-
+LIBUDEV_EXPORT int
+udev_enumerate_add_match_parent(struct udev_enumerate *ue,
+    struct udev_device *parent)
+{
+	TRC("(%p, %p)", ue, parent);
+	UNIMPL();
+	return (0);
+}
 LIBUDEV_EXPORT int
 udev_enumerate_add_match_is_initialized(struct udev_enumerate *ue)
 {
