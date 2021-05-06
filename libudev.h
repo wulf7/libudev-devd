@@ -13,6 +13,7 @@ struct udev_list_entry;
 struct udev_device;
 struct udev_monitor;
 struct udev_enumerate;
+struct udev_queue;
 
 struct udev *udev_new(void);
 struct udev *udev_ref(struct udev *udev);
@@ -127,6 +128,25 @@ struct udev *udev_monitor_get_udev(struct udev_monitor *udev_monitor);
 int udev_monitor_set_receive_buffer_size(struct udev_monitor *um, int size);
 int udev_monitor_filter_update(struct udev_monitor *udev_monitor);
 int udev_monitor_filter_remove(struct udev_monitor *udev_monitor);
+
+struct udev_queue *udev_queue_ref(struct udev_queue *udev_queue);
+struct udev_queue *udev_queue_unref(struct udev_queue *udev_queue);
+struct udev *udev_queue_get_udev(struct udev_queue *udev_queue);
+struct udev_queue *udev_queue_new(struct udev *udev);
+unsigned long long int udev_queue_get_kernel_seqnum(
+    struct udev_queue *udev_queue);
+unsigned long long int udev_queue_get_udev_seqnum(
+    struct udev_queue *udev_queue);
+int udev_queue_get_udev_is_active(struct udev_queue *udev_queue);
+int udev_queue_get_queue_is_empty(struct udev_queue *udev_queue);
+int udev_queue_get_seqnum_is_finished(struct udev_queue *udev_queue,
+    unsigned long long int seqnum);
+int udev_queue_get_seqnum_sequence_is_finished(struct udev_queue *udev_queue,
+    unsigned long long int start, unsigned long long int end);
+int udev_queue_get_fd(struct udev_queue *udev_queue);
+int udev_queue_flush(struct udev_queue *udev_queue);
+struct udev_list_entry *udev_queue_get_queued_list_entry(
+    struct udev_queue *udev_queue);
 
 #ifdef __cplusplus
 } /* extern "C" */
