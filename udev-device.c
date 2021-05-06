@@ -176,6 +176,16 @@ udev_device_get_tags_list_entry(struct udev_device *ud)
 	return (udev_list_entry_get_first(udev_device_get_tags_list(ud)));
 }
 
+LIBUDEV_EXPORT int
+udev_device_has_tag(struct udev_device *ud, const char *tag)
+{
+	struct udev_list_entry *ule;
+
+	TRC("(%p, %s)", ud, tag);
+	ule = udev_list_entry_get_first(udev_device_get_tags_list(ud));
+	return (udev_list_entry_get_by_name(ule, tag) != NULL);
+}
+
 struct udev_list *
 udev_device_get_devlinks_list(struct udev_device *ud)
 {
