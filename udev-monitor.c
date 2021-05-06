@@ -303,6 +303,14 @@ udev_monitor_filter_add_match_subsystem_devtype(struct udev_monitor *um,
 }
 
 LIBUDEV_EXPORT int
+udev_monitor_filter_add_match_tag(struct udev_monitor *um, const char *tag)
+{
+	TRC("(%p, %s)", um, tag);
+	UNIMPL();
+	return (0);
+}
+
+LIBUDEV_EXPORT int
 udev_monitor_enable_receiving(struct udev_monitor *um)
 {
 
@@ -368,4 +376,28 @@ struct udev *udev_monitor_get_udev(struct udev_monitor *um)
 
 	TRC();
 	return (um->udev);
+}
+
+LIBUDEV_EXPORT int
+udev_monitor_set_receive_buffer_size(struct udev_monitor *um, int size)
+{
+	TRC("(%d)", size);
+	UNIMPL();
+	return (0);
+}
+
+LIBUDEV_EXPORT int
+udev_monitor_filter_update(struct udev_monitor *um)
+{
+	TRC();
+	UNIMPL();
+	return (0);
+}
+
+LIBUDEV_EXPORT int
+udev_monitor_filter_remove(struct udev_monitor *um)
+{
+	TRC();
+	UNIMPL();
+	return (0);
 }
