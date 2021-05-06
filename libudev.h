@@ -97,6 +97,8 @@ struct udev_list_entry *udev_list_entry_get_next(
 const char *udev_list_entry_get_name(
     struct udev_list_entry *list_entry);
 const char *udev_list_entry_get_value(struct udev_list_entry *list_entry);
+struct udev_list_entry *udev_list_entry_get_by_name(
+    struct udev_list_entry *list_entry, const char *name);
 #define udev_list_entry_foreach(list_entry, first_entry)		\
 	for (list_entry = first_entry;					\
 	     list_entry != NULL;					\

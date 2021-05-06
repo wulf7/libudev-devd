@@ -37,6 +37,7 @@
 #include "utils.h"
 
 struct udev_list_entry {
+	struct udev_list *list;
 	RB_ENTRY(udev_list_entry) link;
 	char *value;
 	char name[];
@@ -66,6 +67,7 @@ udev_list_insert(struct udev_list *ul, char const *name, char const *value)
 	if (!ule)
 		return (-1);
 
+	ule->list = ul;
 	strcpy(ule->name, name);
 	ule->value = NULL;
 	if (value != NULL) {
@@ -156,6 +158,20 @@ udev_list_entry_cmp (struct udev_list_entry *le1, struct udev_list_entry *le2)
 {
 
 	return (strcmp(le1->name, le2->name));
+}
+
+LIBUDEV_EXPORT struct udev_list_entry *
+udev_list_entry_get_by_name(struct udev_list_entry *ule, const char *name)
+{
+	struct udev_list_entry *find, *ret;
+
+	find = calloc
+	    (1, offsetof(struct udev_list_entry, name) + strlen(name) + 1);
+
+	ret = RB_FIND(udev_list, ule->list, find);
+	udev_list_entry_free(find);
+
+	return (ret);
 }
 
 RB_GENERATE(udev_list, udev_list_entry, link, udev_list_entry_cmp);
