@@ -40,6 +40,7 @@ struct udev_device *udev_device_new_from_environment(struct udev *udev);
 struct udev_device *udev_device_ref(struct udev_device *udev_device);
 void udev_device_unref(struct udev_device *udev_device);
 char const *udev_device_get_devnode(struct udev_device *udev_device);
+char const *udev_device_get_devpath(struct udev_device *udev_device);
 char const *udev_device_get_property_value(struct udev_device *udev_device,
     char const *property);
 char const *udev_device_get_sysattr_value(

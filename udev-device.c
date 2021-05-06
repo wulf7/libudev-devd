@@ -122,6 +122,14 @@ udev_device_get_devnode(struct udev_device *ud)
 	return (devpath);
 }
 
+LIBUDEV_EXPORT char const *
+udev_device_get_devpath(struct udev_device *ud)
+{
+	TRC("(%p)", ud);
+	UNIMPL();
+	return (NULL);
+}
+
 struct udev_list *
 udev_device_get_properties_list(struct udev_device *ud)
 {
