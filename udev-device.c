@@ -96,6 +96,22 @@ udev_device_new_from_subsystem_sysname(struct udev *udev,
 	return (NULL);
 }
 
+LIBUDEV_EXPORT struct udev_device *
+udev_device_new_from_device_id(struct udev *udev, const char *id)
+{
+	TRC("(%s)", id);
+	UNIMPL();
+	return (NULL);
+}
+
+LIBUDEV_EXPORT struct udev_device *
+udev_device_new_from_environment(struct udev *udev)
+{
+	TRC("(%p)", ud);
+	UNIMPL();
+	return (NULL);
+}
+
 LIBUDEV_EXPORT char const *
 udev_device_get_devnode(struct udev_device *ud)
 {

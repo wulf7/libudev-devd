@@ -32,6 +32,9 @@ struct udev_device *udev_device_new_from_devnum(struct udev *udev,
     char type, dev_t devnum);
 struct udev_device *udev_device_new_from_subsystem_sysname(struct udev *udev,
     const char *subsystem, const char *sysname);
+struct udev_device *udev_device_new_from_device_id(struct udev *udev,
+    const char *id);
+struct udev_device *udev_device_new_from_environment(struct udev *udev);
 struct udev_device *udev_device_ref(struct udev_device *udev_device);
 void udev_device_unref(struct udev_device *udev_device);
 char const *udev_device_get_devnode(struct udev_device *udev_device);
