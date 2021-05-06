@@ -102,6 +102,12 @@ src_libudevdevd = [ 'udev.c',
 	'utils.h'
 ]
 
+if get_option('enable-gpl')
+	config_h.set('ENABLE_GPL', '1')
+	src_libudevdevd += [ 'utils-gpl.c',  'utils-gpl.h' ]
+endif
+
+
 deps_libudevdevd = [
 	thread_dep,
 	devinfo_dep,

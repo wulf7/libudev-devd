@@ -55,6 +55,9 @@
 #include "udev-list.h"
 #include "udev-utils.h"
 #include "utils.h"
+#ifdef ENABLE_GPL
+#include "utils-gpl.h"
+#endif
 
 #ifdef HAVE_LINUX_INPUT_H
 #ifndef	BTN_DPAD_UP
@@ -880,3 +883,13 @@ bail_out:
 		close(fd);
 }
 #endif
+
+LIBUDEV_EXPORT int
+udev_util_encode_string(const char *str, char *str_enc, size_t len)
+{
+#ifdef ENABLE_GPL
+	return (encode_devnode_name(str, str_enc, len));
+#else
+	return (strlcpy(str_enc, str, len) < len ? 0 : -EINVAL);
+#endif
+}

@@ -157,6 +157,8 @@ struct udev_hwdb *udev_hwdb_unref(struct udev_hwdb *hwdb);
 struct udev_list_entry *udev_hwdb_get_properties_list_entry(
     struct udev_hwdb *hwdb, const char *modalias, unsigned int flags);
 
+int udev_util_encode_string(const char *str, char *str_enc, size_t len);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

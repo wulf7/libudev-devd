@@ -21,6 +21,11 @@ libudev_la_SOURCES =	tree.h			\
 			utils.c			\
 			utils.h
 
+if ENABLE_GPL
+libudev_la_SOURCES +=	utils-gpl.c		\
+			utils-gpl.h
+endif
+
 libudev_la_LDFLAGS =	-pthread
 libudev_la_CFLAGS =	-I$(top_srcdir) -Wall -Werror -fvisibility=hidden
 

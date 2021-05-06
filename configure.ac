@@ -18,6 +18,12 @@ LT_INIT([disable-static])
 
 AC_SUBST([PACKAGE_VERSION], [libudev_version])
 
+AC_ARG_ENABLE([gpl],
+              AS_HELP_STRING([--enable-gpl], [enable GPL-licensed code]),
+              AC_DEFINE([ENABLE_GPL],[1],[Enable GPL-licensed code])
+              enable_gpl="yes")
+AM_CONDITIONAL(ENABLE_GPL, [test "$enable_gpl" = "yes"])
+
 AC_CHECK_HEADERS([libprocstat.h],
                  [AC_SEARCH_LIBS([procstat_open_sysctl], [procstat])],
                  [],
