@@ -1,5 +1,5 @@
 project('libudev-devd', 'c',
-	version : '0.4.2',
+	version : '0.5.0',
 	license : 'BSD2CLAUSE',
 	default_options : [
 		'buildtype=debugoptimized',
@@ -124,7 +124,7 @@ lib_libudevdevd = shared_library('udev',
 
 pkgconfig.generate(lib_libudevdevd,
 	name : 'libudev',
-	url : 'https://github.com/FreeBSDDesktop/libudev-devd',
+	url : 'https://github.com/wulf7/libudev-devd',
 	description : 'Library to access udev device information',
 	version : '199', # XXX - should be a proper version
 )
