@@ -25,32 +25,44 @@
 
 #include "utils.h"
 
+#include <errno.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "libudev.h"
 #include "udev-utils.h"
 
+struct udev_hwdb {
+	int refcount;
+};
+
 LIBUDEV_EXPORT struct udev_hwdb *
 udev_hwdb_new(struct udev *udev)
 {
-	TRC("(%p", udev);
-	UNIMPL();
-	return (NULL);
+	struct udev_hwdb *uh;
+
+	TRC("(%p)", udev);
+	uh = calloc(1, sizeof(struct udev_hwdb));
+	if (uh != NULL)
+		uh->refcount = 1;
+	return (uh);
 }
 
 LIBUDEV_EXPORT struct udev_hwdb *
 udev_hwdb_ref(struct udev_hwdb *uh)
 {
-	TRC("(%p", uh);
-	UNIMPL();
-	return (NULL);
+	TRC("(%p)", uh);
+	if (uh != NULL)
+		++uh->refcount;
+        return (uh);
 }
 
 LIBUDEV_EXPORT struct udev_hwdb *
 udev_hwdb_unref(struct udev_hwdb *uh)
 {
-	TRC("(%p", uh);
-	UNIMPL();
+	TRC("(%p)", uh);
+	if (uh != NULL && --uh->refcount == 0)
+		free(uh);
 	return (NULL);
 }
 
@@ -58,7 +70,8 @@ LIBUDEV_EXPORT struct udev_list_entry *
 udev_hwdb_get_properties_list_entry(struct udev_hwdb *uh, const char *modalias,
     unsigned int flags)
 {
-	TRC("(%p, %s, %u", uh, modalias, flags);
+	TRC("(%p, %s, %u)", uh, modalias, flags);
 	UNIMPL();
+	errno = EINVAL;
 	return (NULL);
 }
