@@ -1,2 +1,4 @@
 option('enable-gpl', type : 'boolean', value : false,
        description : 'enable GPL-licensed code')
+option('with-hwdb', type : 'string', value : '/etc/udev/hwdb.bin',
+       description : 'Path to hwdb file')

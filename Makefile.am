@@ -23,7 +23,10 @@ libudev_la_SOURCES =	tree.h			\
 
 if ENABLE_GPL
 libudev_la_SOURCES +=	utils-gpl.c		\
-			utils-gpl.h
+			utils-gpl.h		\
+			utils-hwdb.c		\
+			utils-hwdb.h		\
+			utils-hwdb-def.h
 endif
 
 libudev_la_LDFLAGS =	-pthread

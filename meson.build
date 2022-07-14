@@ -104,9 +104,15 @@ src_libudevdevd = [ 'udev.c',
 
 if get_option('enable-gpl')
 	config_h.set('ENABLE_GPL', '1')
-	src_libudevdevd += [ 'utils-gpl.c',  'utils-gpl.h' ]
+	src_libudevdevd += [
+		'utils-gpl.c',
+		'utils-gpl.h',
+		'utils-hwdb.c',
+		'utils-hwdb.h',
+		'utils-hwdb-def.h'
+	]
 endif
-
+config_h.set_quoted('HWDB_PATH', get_option('with-hwdb'))
 
 deps_libudevdevd = [
 	thread_dep,

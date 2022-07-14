@@ -24,6 +24,12 @@ AC_ARG_ENABLE([gpl],
               enable_gpl="yes")
 AM_CONDITIONAL(ENABLE_GPL, [test "$enable_gpl" = "yes"])
 
+AC_ARG_WITH([hwdb],
+            AS_HELP_STRING([--with-hwdb=/path/to/hwdb.bin], [Path to hwdb file]),
+            [hwdb_path=$with_hwdb],
+            [hwdb_path=/etc/udev/hwdb.bin])
+AC_DEFINE_UNQUOTED([HWDB_PATH], ["$hwdb_path"], [Path to hwdb file])
+
 AC_CHECK_HEADERS([libprocstat.h],
                  [AC_SEARCH_LIBS([procstat_open_sysctl], [procstat])],
                  [],
