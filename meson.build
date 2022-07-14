@@ -126,7 +126,7 @@ pkgconfig.generate(lib_libudevdevd,
 	name : 'libudev',
 	url : 'https://github.com/wulf7/libudev-devd',
 	description : 'Library to access udev device information',
-	version : '199', # XXX - should be a proper version
+	version : '243', # XXX - should be a proper version
 )
 
 # output files
