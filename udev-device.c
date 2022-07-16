@@ -49,7 +49,7 @@ struct udev_device {
 	int refcount;
 	struct {
 		unsigned int action : 2;
-		unsigned int is_parent : 1;
+		unsigned int parent_ref : 1;
 	} flags;
 	struct udev_list prop_list;
 	struct udev_list sysattr_list;
@@ -323,8 +323,7 @@ udev_device_ref(struct udev_device *ud)
 {
 	TRC("(%p/%s) %d", ud, ud->syspath, ud->refcount);
 
-	if (!ud->flags.is_parent)
-		++ud->refcount;
+	++ud->refcount;
 	return (ud);
 }
 
@@ -336,7 +335,7 @@ udev_device_free(struct udev_device *ud)
 	udev_list_free(&ud->sysattr_list);
 	udev_list_free(&ud->tag_list);
 	udev_list_free(&ud->devlink_list);
-	if (ud->parent != NULL)
+	if (!ud->flags.parent_ref && ud->parent != NULL)
 		udev_device_free(ud->parent);
 	_udev_unref(ud->udev);
 	free(ud);
@@ -345,10 +344,7 @@ udev_device_free(struct udev_device *ud)
 LIBUDEV_EXPORT void
 udev_device_unref(struct udev_device *ud)
 {
-
 	TRC("(%p/%s) %d", ud, ud->syspath, ud->refcount);
-	if (ud->flags.is_parent)
-		return;
 	if (--ud->refcount == 0)
 		udev_device_free(ud);
 }
@@ -356,8 +352,9 @@ udev_device_unref(struct udev_device *ud)
 LIBUDEV_EXPORT struct udev_device *
 udev_device_get_parent(struct udev_device *ud)
 {
-
 	TRC("(%p/%s) %p", ud, ud->syspath, ud->parent);
+	if (ud->parent != NULL)
+		ud->flags.parent_ref = 1;
 	return (ud->parent);
 }
 
@@ -374,8 +371,6 @@ udev_device_get_parent_with_subsystem_devtype(struct udev_device *ud,
 void
 udev_device_set_parent(struct udev_device *ud, struct udev_device *parent)
 {
-
-	parent->flags.is_parent = 1;
 	ud->parent = parent;
 }
 
