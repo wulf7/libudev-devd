@@ -362,10 +362,33 @@ LIBUDEV_EXPORT struct udev_device *
 udev_device_get_parent_with_subsystem_devtype(struct udev_device *ud,
     const char *subsystem, const char *devtype)
 {
+	const char *parent_subsystem, *parent_devtype = NULL;
+	struct udev_device *parent, *child;
 
 	TRC("(%p/%s, %s, %s)", ud, ud->syspath, subsystem, devtype);
-	UNIMPL();
-	return (ud->parent);
+	if (ud == NULL || subsystem == NULL) {
+		errno = EINVAL;
+		return (NULL);
+	}
+
+	for (parent = ud->parent, child = ud;
+	     parent != NULL;
+	     child = parent, parent = parent->parent) {
+		parent_subsystem = udev_device_get_subsystem(parent);
+		if (devtype != NULL)
+			parent_devtype = udev_device_get_devtype(parent);
+		if (parent_subsystem == NULL ||
+		    strcmp(parent_subsystem, subsystem) != 0)
+			continue;
+		if (devtype == NULL ||
+		    (parent_devtype != NULL &&
+		     strcmp(parent_devtype, devtype) == 0)) {
+			child->flags.parent_ref = 1;
+			return (parent);
+		}
+	}
+	errno = ENOENT;
+	return (NULL);
 }
 
 void
