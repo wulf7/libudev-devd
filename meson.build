@@ -14,7 +14,7 @@ dir_data        = join_paths(get_option('prefix'), get_option('datadir'))
 dir_sysconf     = join_paths(get_option('prefix'), get_option('sysconfdir'))
 dir_libexec     = join_paths(get_option('prefix'), get_option('libexecdir'))
 dir_lib         = join_paths(get_option('prefix'), get_option('libdir'))
-dir_src         = join_paths(meson.source_root())
+dir_src         = join_paths(meson.current_source_dir())
 
 # Compiler setup
 cc = meson.get_compiler('c')
@@ -25,7 +25,7 @@ add_project_arguments(cflags, language: 'c')
 config_h = configuration_data()
 config_h_inc = include_directories('.')
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
-	config_h.set_quoted('MESON_BUILD_ROOT', meson.build_root())
+	config_h.set_quoted('MESON_BUILD_ROOT', meson.current_build_dir())
 else
 	config_h.set_quoted('MESON_BUILD_ROOT', '')
 endif
