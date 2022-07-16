@@ -47,6 +47,11 @@
 #endif
 #ifdef HAVE_LINUX_INPUT_H
 #include <linux/input.h>
+#else
+#ifdef HAVE_DEV_EVDEV_INPUT_H
+#define	HAVE_LINUX_INPUT_H
+#include <dev/evdev/input.h>
+#endif
 #endif
 
 #include "libudev.h"

@@ -53,6 +53,9 @@ endif
 if cc.has_header('linux/input.h')
 	config_h.set('HAVE_LINUX_INPUT_H', '1')
 endif
+if cc.has_header('dev/evdev/input.h')
+	config_h.set('HAVE_DEV_EVDEV_INPUT_H', '1')
+endif
 
 if cc.has_header('sys/tree.h')
 	config_h.set('HAVE_SYS_TREE_H', '1')
