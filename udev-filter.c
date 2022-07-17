@@ -134,59 +134,62 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 	ret = STAILQ_EMPTY(ufh);
 
 	STAILQ_FOREACH(ufe, ufh, next) {
-		if (ufe->type == UDEV_FILTER_TYPE_SUBSYSTEM &&
-		    ufe->neg == 0 &&
-		    fnmatch(ufe->expr, subsystem, 0) == 0) {
-			ret = true;
+		if (ufe->neg != 0)
+			continue;
+		switch (ufe->type) {
+		case UDEV_FILTER_TYPE_SUBSYSTEM:
+			if (fnmatch(ufe->expr, subsystem, 0) == 0)
+				ret = true;
 			break;
-		}
-		if (ufe->type == UDEV_FILTER_TYPE_SYSNAME &&
-		    ufe->neg == 0 &&
-		    fnmatch(ufe->expr, sysname, 0) == 0) {
-			ret = true;
+		case UDEV_FILTER_TYPE_SYSNAME:
+			if (fnmatch(ufe->expr, sysname, 0) == 0)
+				ret = true;
 			break;
-		}
-		if (ufe->type == UDEV_FILTER_TYPE_PROPERTY && ufe->neg == 0) {
+		case UDEV_FILTER_TYPE_PROPERTY:
 			ud = udev_device_new_common(udev, syspath, UD_ACTION_NONE);
 			if (ud == NULL)
 				break;
 			if (fnmatch_list(
-			    udev_device_get_properties_list(ud), ufe)) {
+			    udev_device_get_properties_list(ud), ufe))
 				ret = true;
-				break;
-			}
-		}
-		if (ufe->type == UDEV_FILTER_TYPE_SYSATTR && ufe->neg == 0) {
+			break;
+		case UDEV_FILTER_TYPE_SYSATTR:
 			if (ud == NULL)
 				ud = udev_device_new_common(udev, syspath,
 				    UD_ACTION_NONE);
 			if (ud == NULL)
 				break;
 			if (fnmatch_list(
-			    udev_device_get_sysattr_list(ud), ufe)) {
+			    udev_device_get_sysattr_list(ud), ufe))
 				ret = true;
-				break;
-			}
+			break;
+		default:
+			;
 		}
+		if (ret)
+			break;
 	}
 
 	if (!ret)
 		goto out;
 
 	STAILQ_FOREACH(ufe, ufh, next) {
-		if (ufe->type == UDEV_FILTER_TYPE_SUBSYSTEM &&
-		    ufe->neg == 1 &&
-		    fnmatch(ufe->expr, subsystem, 0) == 0) {
-			ret = false;
+		if (ufe->neg != 1)
+			continue;
+		switch (ufe->type) {
+		case UDEV_FILTER_TYPE_SUBSYSTEM:
+			if (fnmatch(ufe->expr, subsystem, 0) == 0) {
+				ret = false;
+				goto out;
+			}
 			break;
-		}
-		if (ufe->type == UDEV_FILTER_TYPE_SYSNAME &&
-		    ufe->neg == 1 &&
-		    fnmatch(ufe->expr, sysname, 0) == 0) {
-			ret = false;
+		case UDEV_FILTER_TYPE_SYSNAME:
+			if (fnmatch(ufe->expr, sysname, 0) == 0) {
+				ret = false;
+				goto out;
+			}
 			break;
-		}
-		if (ufe->type == UDEV_FILTER_TYPE_SYSATTR && ufe->neg == 1) {
+		case UDEV_FILTER_TYPE_SYSATTR:
 			if (ud == NULL)
 				ud = udev_device_new_common(udev, sysname,
 				    UD_ACTION_NONE);
@@ -195,8 +198,11 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 			if (fnmatch_list(
 			    udev_device_get_sysattr_list(ud), ufe)) {
 				ret = false;
-				break;
+				goto out;
 			}
+			break;
+		default:
+			;
 		}
 	}
 
