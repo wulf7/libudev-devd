@@ -146,7 +146,9 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 				ret = true;
 			break;
 		case UDEV_FILTER_TYPE_PROPERTY:
-			ud = udev_device_new_common(udev, syspath, UD_ACTION_NONE);
+			if (ud == NULL)
+				ud = udev_device_new_common(udev, syspath,
+				    UD_ACTION_NONE);
 			if (ud == NULL)
 				break;
 			if (fnmatch_list(
