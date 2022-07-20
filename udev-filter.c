@@ -161,6 +161,16 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 			    udev_device_get_properties_list(ud), ufe))
 				score[ufe->type].matched = true;
 			break;
+		case UDEV_FILTER_TYPE_TAG:
+			if (ud == NULL)
+				ud = udev_device_new_common(udev, syspath,
+				    UD_ACTION_NONE);
+			if (ud == NULL)
+				break;
+			if (fnmatch_list(
+			    udev_device_get_tags_list(ud), ufe))
+				score[ufe->type].matched = true;
+			break;
 		case UDEV_FILTER_TYPE_SYSATTR:
 			if (ud == NULL)
 				ud = udev_device_new_common(udev, syspath,
