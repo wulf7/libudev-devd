@@ -201,12 +201,6 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 				goto out;
 			}
 			break;
-		case UDEV_FILTER_TYPE_SYSNAME:
-			if (fnmatch(ufe->expr, sysname, 0) == 0) {
-				ret = false;
-				goto out;
-			}
-			break;
 		case UDEV_FILTER_TYPE_SYSATTR:
 			if (ud == NULL)
 				ud = udev_device_new_common(udev, syspath,
