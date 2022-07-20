@@ -8,6 +8,7 @@ enum {
 	UDEV_FILTER_TYPE_PROPERTY,
 	UDEV_FILTER_TYPE_TAG,
 	UDEV_FILTER_TYPE_SYSATTR,
+	UDEV_FILTER_TYPE_CNT,
 };
 STAILQ_HEAD(udev_filter_head, udev_filter_entry);
 

@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 
+#include <assert.h>
 #include <fnmatch.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -62,6 +63,7 @@ udev_filter_add(struct udev_filter_head *ufh, int type, int neg,
 	struct udev_filter_entry *ufe;
 	size_t exprlen, valuelen;
 
+	assert(type >= 0 && type < UDEV_FILTER_TYPE_CNT);
 	exprlen = strlen(expr) + 1;
 	valuelen = value == NULL ? 0 : strlen(value) + 1;
 
@@ -123,27 +125,31 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 	struct udev_filter_entry *ufe;
 	struct udev_device *ud = NULL;
 	const char *subsystem, *sysname;
-	int ret;
+	struct {
+		bool	seen;
+		bool	matched;
+	} score[UDEV_FILTER_TYPE_CNT], *i;
+	bool ret = false;
 
+	memset(score, 0, sizeof(score));
 	subsystem = get_subsystem_by_syspath(syspath);
 	if (strcmp(subsystem, UNKNOWN_SUBSYSTEM) == 0)
 		return (0);
 
 	sysname = get_sysname_by_syspath(syspath);
-	/* An empty filter list accepts everything. */
-	ret = STAILQ_EMPTY(ufh);
 
 	STAILQ_FOREACH(ufe, ufh, next) {
 		if (ufe->neg != 0)
 			continue;
+		score[ufe->type].seen = true;
 		switch (ufe->type) {
 		case UDEV_FILTER_TYPE_SUBSYSTEM:
 			if (fnmatch(ufe->expr, subsystem, 0) == 0)
-				ret = true;
+				score[ufe->type].matched = true;
 			break;
 		case UDEV_FILTER_TYPE_SYSNAME:
 			if (fnmatch(ufe->expr, sysname, 0) == 0)
-				ret = true;
+				score[ufe->type].matched = true;
 			break;
 		case UDEV_FILTER_TYPE_PROPERTY:
 			if (ud == NULL)
@@ -153,7 +159,7 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 				break;
 			if (fnmatch_list(
 			    udev_device_get_properties_list(ud), ufe))
-				ret = true;
+				score[ufe->type].matched = true;
 			break;
 		case UDEV_FILTER_TYPE_SYSATTR:
 			if (ud == NULL)
@@ -163,18 +169,18 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 				break;
 			if (fnmatch_list(
 			    udev_device_get_sysattr_list(ud), ufe))
-				ret = true;
+				score[ufe->type].matched = true;
 			break;
 		default:
 			;
 		}
-		if (ret)
-			break;
 	}
 
-	if (!ret)
-		goto out;
+	for (i = score; i < score + UDEV_FILTER_TYPE_CNT; i++)
+		if (i->seen != i->matched)
+			goto out;
 
+	ret = true;
 	STAILQ_FOREACH(ufe, ufh, next) {
 		if (ufe->neg != 1)
 			continue;
