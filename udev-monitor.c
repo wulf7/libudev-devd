@@ -304,8 +304,7 @@ LIBUDEV_EXPORT int
 udev_monitor_filter_add_match_tag(struct udev_monitor *um, const char *tag)
 {
 	TRC("(%p, %s)", um, tag);
-	UNIMPL();
-	return (0);
+	return (udev_filter_add(&um->filters, UDEV_FILTER_TYPE_TAG, 0, tag, 0));
 }
 
 LIBUDEV_EXPORT int
