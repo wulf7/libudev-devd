@@ -313,7 +313,7 @@ udev_device_get_subsystem(struct udev_device *ud)
 {
 	const char *subsystem;
 
-	subsystem = get_subsystem_by_syspath(udev_device_get_syspath(ud));
+	subsystem = get_subsystem_by_syspath(ud->syspath, NULL);
 	TRC("(%p(%s)) %s", ud, ud->syspath, subsystem);
 	return (subsystem);
 }
@@ -374,9 +374,8 @@ udev_device_get_parent_with_subsystem_devtype(struct udev_device *ud,
 	for (parent = ud->parent, child = ud;
 	     parent != NULL;
 	     child = parent, parent = parent->parent) {
-		parent_subsystem = udev_device_get_subsystem(parent);
-		if (devtype != NULL)
-			parent_devtype = udev_device_get_devtype(parent);
+		parent_subsystem = get_subsystem_by_syspath(parent->syspath,
+		    &parent_devtype);
 		if (parent_subsystem == NULL ||
 		    strcmp(parent_subsystem, subsystem) != 0)
 			continue;
@@ -449,10 +448,11 @@ udev_device_get_devnum(struct udev_device *ud)
 LIBUDEV_EXPORT const char *
 udev_device_get_devtype(struct udev_device *ud)
 {
+	const char *devtype;
 
 	TRC("(%p) %s", ud, ud->syspath);
-	UNIMPL();
-	return (NULL);
+	(void)get_subsystem_by_syspath(ud->syspath, &devtype);
+	return (devtype);
 }
 
 LIBUDEV_EXPORT const char *

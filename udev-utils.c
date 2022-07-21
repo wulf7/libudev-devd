@@ -116,6 +116,7 @@ struct devnum_scan_args {
 
 struct subsystem_config {
 	char *subsystem;
+	char *devtype;
 	char *syspath;
 	char *symlink; /* If syspath is symlink, path it refers to */
 	int flags; /* See SCFLAG_* below. */
@@ -245,7 +246,7 @@ kernel_has_evdev_enabled()
 }
 
 const char *
-get_subsystem_by_syspath(const char *syspath)
+get_subsystem_by_syspath(const char *syspath, const char **devtype)
 {
 	const struct subsystem_config *sc;
 
@@ -257,6 +258,8 @@ get_subsystem_by_syspath(const char *syspath)
 		return (UNKNOWN_SUBSYSTEM);
 	}
 
+	if (devtype != NULL)
+		*devtype = sc->devtype;
 	return (sc->subsystem);
 }
 

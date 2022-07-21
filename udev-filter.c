@@ -124,7 +124,7 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 {
 	struct udev_filter_entry *ufe;
 	struct udev_device *ud = NULL;
-	const char *subsystem, *sysname;
+	const char *subsystem, *devtype, *sysname;
 	struct {
 		bool	seen;
 		bool	matched;
@@ -132,7 +132,7 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 	bool ret = false;
 
 	memset(score, 0, sizeof(score));
-	subsystem = get_subsystem_by_syspath(syspath);
+	subsystem = get_subsystem_by_syspath(syspath, &devtype);
 	if (strcmp(subsystem, UNKNOWN_SUBSYSTEM) == 0)
 		return (0);
 
