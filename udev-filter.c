@@ -144,7 +144,10 @@ udev_filter_match(struct udev *udev, struct udev_filter_head *ufh,
 		score[ufe->type].seen = true;
 		switch (ufe->type) {
 		case UDEV_FILTER_TYPE_SUBSYSTEM:
-			if (fnmatch(ufe->expr, subsystem, 0) == 0)
+			if (fnmatch(ufe->expr, subsystem, 0) == 0 &&
+			    (ufe->value == NULL ||
+			    (ufe->value != NULL && devtype != NULL &&
+			     fnmatch(ufe->value, devtype, 0) == 0)))
 				score[ufe->type].matched = true;
 			break;
 		case UDEV_FILTER_TYPE_SYSNAME:

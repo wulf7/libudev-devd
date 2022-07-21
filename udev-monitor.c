@@ -295,10 +295,9 @@ LIBUDEV_EXPORT int
 udev_monitor_filter_add_match_subsystem_devtype(struct udev_monitor *um,
     const char *subsystem, const char *devtype)
 {
-
 	TRC("(%p, %s, %s)", um, subsystem, devtype);
 	return (udev_filter_add(&um->filters, UDEV_FILTER_TYPE_SUBSYSTEM, 0,
-	    subsystem, NULL));
+	    subsystem, devtype));
 }
 
 LIBUDEV_EXPORT int
