@@ -811,8 +811,9 @@ create_drm_handler(struct udev_device *ud)
 	const char *sysname, *devpath;
 	struct udev_device *parent;
 #ifdef HAVE_SYSCTLBYNAME
-	char devbuf[PATH_MAX], buf[32], *devbufptr;
-	size_t buflen = sizeof(devbuf);
+	char devbuf[PATH_MAX], buf[32], busid[32], *devbufptr;
+	size_t buflen = sizeof(devbuf), busid_len = sizeof(busid);
+    int cardnum;
 #endif
 
 	udev_list_insert(udev_device_get_properties_list(ud), "HOTPLUG", "1");
@@ -839,6 +840,21 @@ create_drm_handler(struct udev_device *ud)
 	if (sysctlbyname(buf, devbuf, &buflen, NULL, 0) == 0){
 		udev_list_insert(
 		    udev_device_get_properties_list(parent), "PCI_ID", devbuf);}
+
+	/* Get the hw.dri.<cardnum>.busid entry */
+	realpath(devpath, devbuf);
+	if (sscanf(devbuf, "/dev/drm/%d", &cardnum) != 1)
+		return;
+
+	snprintf(buf, sizeof(buf), "hw.dri.%d.busid", cardnum);
+	if (sysctlbyname(buf, busid, &busid_len, NULL, 0) == 0) {
+		/* Change our busid format to pci-*:*:* to match what xorg expects */
+		if (strncmp(busid, "pci:", 4) == 0) {
+			busid[3] = '-';
+		}
+	    udev_list_insert(udev_device_get_properties_list(ud), "ID_PATH", busid);
+	}
+
 #endif
 }
 
