@@ -894,6 +894,7 @@ create_hidraw_handler(struct udev_device *ud)
 	if (parent == NULL)
 		goto bail_out;
 
+	udev_device_set_parent(ud, parent);
 	sysattrs = udev_device_get_sysattr_list(parent);
 	asprintf(&uevent,
 	    "HID_ID=%04X:%08X:%08X\nHID_NAME=%s\nHID_PHYS=%s\nHID_UNIQ=%s",
