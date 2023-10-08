@@ -341,12 +341,13 @@ udev_device_free(struct udev_device *ud)
 	free(ud);
 }
 
-LIBUDEV_EXPORT void
+LIBUDEV_EXPORT struct udev_device *
 udev_device_unref(struct udev_device *ud)
 {
 	TRC("(%p/%s) %d", ud, ud->syspath, ud->refcount);
 	if (--ud->refcount == 0)
 		udev_device_free(ud);
+	return (NULL);
 }
 
 LIBUDEV_EXPORT struct udev_device *
