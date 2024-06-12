@@ -58,14 +58,16 @@ static pthread_mutex_t devinfo_mtx = PTHREAD_MUTEX_INITIALIZER;
  * locates the occurrence of last component of the pathname
  * pointed to by path
  */
-char *
+const char *
 strbase(const char *path)
 {
-	char *base;
+	const char *base;
 
 	base = strrchr(path, '/');
 	if (base != NULL)
 		base++;
+	else
+		base = path;
 
 	return (base);
 }

@@ -78,7 +78,7 @@ struct scan_ctx {
 	void *args;
 };
 
-char *strbase(const char *path);
+const char *strbase(const char *path);
 char *get_kern_prop_value(const char *buf, const char *prop, size_t *len);
 int match_kern_prop_value(const char *buf, const char *prop, const char *value);
 int path_to_fd(const char *path);

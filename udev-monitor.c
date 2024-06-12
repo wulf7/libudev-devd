@@ -43,6 +43,7 @@
 #include "libudev.h"
 #include "udev.h"
 #include "udev-device.h"
+#include "udev-net.h"
 #include "udev-utils.h"
 #include "udev-filter.h"
 #include "udev-utils.h"
@@ -50,11 +51,6 @@
 
 #define	DEVD_SOCK_PATH		"/var/run/devd.seqpacket.pipe"
 #define	DEVD_RECONNECT_INTERVAL	1000	/* reconnect after 1 second */
-
-#define	DEVD_EVENT_ATTACH	'+'
-#define	DEVD_EVENT_DETACH	'-'
-#define	DEVD_EVENT_NOTICE	'!'
-#define	DEVD_EVENT_UNKNOWN	'?'
 
 STAILQ_HEAD(udev_monitor_queue_head, udev_monitor_queue_entry);
 struct udev_monitor_queue_entry {
@@ -181,6 +177,8 @@ parse_devd_message(char *msg, char *syspath, size_t syspathlen)
 	default:
 		break;
 	}
+	if (action == UD_ACTION_NONE)
+		action = udev_net_monitor(msg, syspath, syspathlen);
 
 	return (action);
 }

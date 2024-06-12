@@ -57,6 +57,7 @@
 #include "libudev.h"
 #include "udev-device.h"
 #include "udev-list.h"
+#include "udev-net.h"
 #include "udev-utils.h"
 #include "utils.h"
 #ifdef ENABLE_GPL
@@ -85,8 +86,6 @@
 #define	PS2_KEYBOARD_PRODUCT		0x001
 #define	PS2_MOUSE_VENDOR		0x002
 #define	PS2_MOUSE_GENERIC_PRODUCT	0x001
-
-typedef void (create_node_handler_t)(struct udev_device *udev_device);
 
 #if defined(HAVE_LINUX_INPUT_H) || defined(HAVE_DEV_HID_HIDRAW_H)
 static const char *virtual_sysname = "uinput";
@@ -201,6 +200,10 @@ static const struct subsystem_config subsystems[] = {
 		.syspath = DEV_PATH_ROOT "/dri/card[0-9]*",
 		.symlink = DEV_PATH_ROOT "/drm/[0-9]*",
 		.create_handler = create_drm_handler,
+	}, {
+		.subsystem = "net",
+		.syspath = "/net/*",
+		.create_handler = create_net_handler,
 	},
 #ifdef HAVE_DEV_HID_HIDRAW_H
 	{
@@ -273,8 +276,10 @@ get_sysname_by_syspath(const char *syspath)
 const char *
 get_devpath_by_syspath(const char *syspath)
 {
-
-	return (syspath);
+	if (strncmp(syspath, DEV_PATH_ROOT "/", 5) == 0)
+		return (syspath);
+	else
+		return (strbase(syspath));
 }
 
 const char *
