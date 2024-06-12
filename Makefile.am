@@ -15,6 +15,8 @@ libudev_la_SOURCES =	tree.h			\
 			udev-list.c		\
 			udev-list.h		\
 			udev-monitor.c		\
+			udev-net.c		\
+			udev-net.h		\
 			udev-queue.c		\
 			udev-utils.c		\
 			udev-utils.h		\

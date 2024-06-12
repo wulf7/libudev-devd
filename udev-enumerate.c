@@ -37,6 +37,7 @@
 #include "libudev.h"
 #include "udev-filter.h"
 #include "udev-list.h"
+#include "udev-net.h"
 #include "udev-utils.h"
 #include "utils.h"
 
@@ -211,6 +212,8 @@ udev_enumerate_scan_devices(struct udev_enumerate *ue)
 	if (ret == 0)
 		ret = scandev_recursive(&ctx);
 #endif
+	if (ret == 0)
+		ret = udev_net_enumerate(&ctx);
 	if (ret == -1)
 		udev_list_free(&ue->dev_list);
 	return ret;
