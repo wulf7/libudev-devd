@@ -115,7 +115,7 @@ LIBUDEV_EXPORT struct udev_list_entry *
 udev_list_entry_get_next(struct udev_list_entry *ule)
 {
 
-	return (RB_NEXT(udev_list,, ule));
+	return (ule != NULL ? RB_NEXT(udev_list,, ule) : NULL);
 }
 
 const char *
@@ -129,6 +129,9 @@ LIBUDEV_EXPORT const char *
 udev_list_entry_get_name(struct udev_list_entry *ule)
 {
 	const char *name;
+
+	if (ule == NULL)
+		return (NULL);
 
 	name = _udev_list_entry_get_name(ule);
 	TRC("() %s", name);
@@ -147,6 +150,9 @@ udev_list_entry_get_value(struct udev_list_entry *ule)
 {
 	const char *value;
 
+	if (ule == NULL)
+		return (NULL);
+
 	value = _udev_list_entry_get_value(ule);
 	TRC("() %s", value);
 	return (value);
@@ -163,6 +169,9 @@ LIBUDEV_EXPORT struct udev_list_entry *
 udev_list_entry_get_by_name(struct udev_list_entry *ule, const char *name)
 {
 	struct udev_list_entry *find, *ret;
+
+	if (ule == NULL)
+		return (NULL);
 
 	find = calloc
 	    (1, offsetof(struct udev_list_entry, name) + strlen(name) + 1);
