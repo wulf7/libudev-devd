@@ -42,7 +42,9 @@ struct udev_list_entry {
 	char name[];
 };
 
-void udev_list_entry_free(struct udev_list_entry *ule);
+static struct udev_list_entry *udev_list_entry_alloc(const char* name,
+    const char* value);
+static void udev_list_entry_free(struct udev_list_entry *ule);
 
 RB_PROTOTYPE(udev_list, udev_list_entry, link, udev_list_entry_cmp);
 
@@ -57,23 +59,12 @@ int
 udev_list_insert(struct udev_list *ul, char const *name, char const *value)
 {
 	struct udev_list_entry *ule, *old_ule;
-	size_t namelen, valuelen;
 
-	namelen = strlen(name) + 1;
-	valuelen = value == NULL ? 0 : strlen(value) + 1;
-	ule = calloc
-	    (1, offsetof(struct udev_list_entry, name) + namelen + valuelen);
+	ule = udev_list_entry_alloc(name, value);
 	if (!ule)
 		return (-1);
 
 	ule->list = ul;
-	strcpy(ule->name, name);
-	ule->value = NULL;
-	if (value != NULL) {
-		ule->value = ule->name + namelen;
-		strcpy(ule->value, value);
-	}
-
 	old_ule = RB_FIND(udev_list, ul, ule);
 	if (old_ule != NULL) {
 		RB_REMOVE(udev_list, ul, old_ule);
@@ -97,7 +88,28 @@ udev_list_free(struct udev_list *ul)
 	RB_INIT(ul);
 }
 
-void
+static struct udev_list_entry *
+udev_list_entry_alloc(const char *name, const char *value)
+{
+	struct udev_list_entry *ule;
+	size_t namelen, valuelen;
+
+	namelen = strlen(name) + 1;
+	valuelen = value == NULL ? 0 : strlen(value) + 1;
+	ule = calloc
+	    (1, offsetof(struct udev_list_entry, name) + namelen + valuelen);
+	if (ule != NULL) {
+		strcpy(ule->name, name);
+		if (value != NULL) {
+			ule->value = ule->name + namelen;
+			strcpy(ule->value, value);
+		}
+	}
+
+	return (ule);
+}
+
+static void
 udev_list_entry_free(struct udev_list_entry *ule)
 {
 
@@ -173,8 +185,9 @@ udev_list_entry_get_by_name(struct udev_list_entry *ule, const char *name)
 	if (ule == NULL)
 		return (NULL);
 
-	find = calloc
-	    (1, offsetof(struct udev_list_entry, name) + strlen(name) + 1);
+	find = udev_list_entry_alloc(name, NULL);
+	if (find == NULL)
+		return (NULL);
 
 	ret = RB_FIND(udev_list, ule->list, find);
 	udev_list_entry_free(find);
