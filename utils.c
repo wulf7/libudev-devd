@@ -73,7 +73,7 @@ strbase(const char *path)
 char *
 get_kern_prop_value(const char *buf, const char *prop, size_t *len)
 {
-	char *prop_pos;
+	char *prop_pos, *ret;
 	size_t prop_len;
 
 	prop_len = strlen(prop);
@@ -83,8 +83,10 @@ get_kern_prop_value(const char *buf, const char *prop, size_t *len)
 	    prop_pos[prop_len] != '=')
 		return (NULL);
 
-	*len = strchrnul(prop_pos + prop_len + 1, ' ') - prop_pos - prop_len - 1;
-	return (prop_pos + prop_len + 1);
+	ret = prop_pos + prop_len + 1;
+	if (len != NULL)
+		*len = strchrnul(ret, ' ') - ret;
+	return (ret);
 }
 
 int
