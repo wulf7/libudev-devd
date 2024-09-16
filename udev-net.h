@@ -28,11 +28,11 @@
 
 #include "udev-utils.h"
 
-struct scan_ctx;
+struct udev_enumerate;
 
 create_node_handler_t	create_net_handler;
 
-int udev_net_enumerate(struct scan_ctx *ctx);
+int udev_net_enumerate(struct udev_enumerate *ue);
 int udev_net_monitor(char *msg, char *syspath, size_t syspathlen);
 
 #endif /* UDEV_NET_H_ */

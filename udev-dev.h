@@ -30,7 +30,7 @@
 
 #include "udev-utils.h"
 
-struct scan_ctx;
+struct udev_enumerate;
 
 #if defined (HAVE_LINUX_INPUT_H) || defined (HAVE_DEV_EVDEV_INPUT_H)
 create_node_handler_t	create_evdev_handler;
@@ -47,7 +47,7 @@ create_node_handler_t	create_drm_handler;
 create_node_handler_t	create_hidraw_handler;
 #endif
 
-int udev_dev_enumerate(struct scan_ctx *ctx);
+int udev_dev_enumerate(struct udev_enumerate *ue);
 int udev_dev_monitor(char *msg, char *syspath, size_t syspathlen);
 
 #endif /* UDEV_DEV_H_ */

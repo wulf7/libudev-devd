@@ -23,12 +23,11 @@
  * SUCH DAMAGE.
  */
 
-#ifndef UDEV_SYS_H_
-#define UDEV_SYS_H_
+#ifndef UDEV_ENUMERATE_H_
+#define UDEV_ENUMERATE_H_
 
 struct udev_enumerate;
 
-int udev_sys_enumerate(struct udev_enumerate *ue);
-int udev_sys_monitor(char *msg, char *syspath, size_t syspathlen);
+int udev_enumerate_add_device(struct udev_enumerate *ue, const char *syspath);
 
-#endif /* UDEV_SYS_H_ */
+#endif /* UDEV_ENUMERATE_H_ */

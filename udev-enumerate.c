@@ -169,41 +169,29 @@ udev_enumerate_add_match_is_initialized(struct udev_enumerate *ue)
 	return (0);
 }
 
-static int
-enumerate_cb(const char *path, mode_t type, void *arg)
+int
+udev_enumerate_add_device(struct udev_enumerate *ue, const char *syspath)
 {
-	struct udev_enumerate *ue = arg;
-	const char *syspath;
-
-	if (S_ISLNK(type) || S_ISCHR(type)) {
-		syspath = get_syspath_by_devpath(path);
-		if (udev_filter_match(ue->udev, &ue->filters, syspath) &&
-		    udev_list_insert(&ue->dev_list, syspath, NULL) == -1)
-			return (-1);
-	}
+	if (udev_filter_match(ue->udev, &ue->filters, syspath) &&
+	    udev_list_insert(&ue->dev_list, syspath, NULL) == -1)
+		return (-1);
 	return (0);
 }
 
 LIBUDEV_EXPORT int
 udev_enumerate_scan_devices(struct udev_enumerate *ue)
 {
-	struct scan_ctx ctx;
 	int ret;
 
 	TRC("(%p)", ue);
 
 	udev_list_free(&ue->dev_list);
-	ctx = (struct scan_ctx) {
-		.recursive = true,
-		.cb = enumerate_cb,
-		.args = ue,
-	};
 
-	ret = udev_dev_enumerate(&ctx);
+	ret = udev_dev_enumerate(ue);
 	if (ret == 0)
-		ret = udev_sys_enumerate(&ctx);
+		ret = udev_sys_enumerate(ue);
 	if (ret == 0)
-		ret = udev_net_enumerate(&ctx);
+		ret = udev_net_enumerate(ue);
 	if (ret == -1)
 		udev_list_free(&ue->dev_list);
 	return ret;

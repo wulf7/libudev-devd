@@ -11,6 +11,7 @@ libudev_la_SOURCES =	tree.h			\
 			udev-device.c		\
 			udev-device.h		\
 			udev-enumerate.c	\
+			udev-enumerate.h	\
 			udev-filter.c		\
 			udev-filter.h		\
 			udev-global.h		\

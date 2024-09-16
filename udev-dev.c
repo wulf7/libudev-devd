@@ -95,12 +95,30 @@ enum {
 	IT_SWITCH,
 };
 
+static int
+udev_dev_enumerate_cb(const char *path, mode_t type, void *arg)
+{
+	struct udev_enumerate *ue = arg;
+	const char *syspath;
+
+	if (S_ISLNK(type) || S_ISCHR(type)) {
+		syspath = get_syspath_by_devpath(path);
+		return (udev_enumerate_add_device(ue, syspath));
+	}
+	return (0);
+}
+
 int
-udev_dev_enumerate(struct scan_ctx *ctx)
+udev_dev_enumerate(struct udev_enumerate *ue)
 {
 	char path[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
+	struct scan_ctx ctx = {
+		.recursive = true,
+		.cb = udev_dev_enumerate_cb,
+		.args = ue,
+	};
 
-	return (scandir_recursive(path, sizeof(path), ctx));
+	return (scandir_recursive(path, sizeof(path), &ctx));
 }
 
 int

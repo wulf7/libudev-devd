@@ -33,7 +33,7 @@
 #include "udev-global.h"
 
 int
-udev_net_enumerate(struct scan_ctx *ctx)
+udev_net_enumerate(struct udev_enumerate *ue)
 {
 	char syspath[IFNAMSIZ + 5] = "/net/";
 	struct ifaddrs *ifap, *ifa;
@@ -47,7 +47,7 @@ udev_net_enumerate(struct scan_ctx *ctx)
 		    ifa->ifa_addr->sa_family != AF_LINK)
 			continue;
 		strlcpy(syspath + 5, ifa->ifa_name, IFNAMSIZ);
-		if ((ret = (ctx->cb)(syspath, S_IFCHR, ctx->args)) < 0)
+		if ((ret = udev_enumerate_add_device(ue, syspath)) < 0)
 			break;
 	}
 

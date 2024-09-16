@@ -34,6 +34,7 @@
 
 #include "udev.h"
 #include "udev-device.h"
+#include "udev-enumerate.h"
 #include "udev-filter.h"
 #include "udev-list.h"
 #include "udev-utils.h"

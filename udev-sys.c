@@ -25,11 +25,32 @@
 
 #include "udev-global.h"
 
+#ifdef HAVE_DEVINFO_H
+static int
+udev_sys_enumerate_cb(const char *path, mode_t type, void *arg)
+{
+	struct udev_enumerate *ue = arg;
+	const char *syspath;
+
+	if (S_ISLNK(type) || S_ISCHR(type)) {
+		syspath = get_syspath_by_devpath(path);
+		return (udev_enumerate_add_device(ue, syspath));
+	}
+	return (0);
+}
+#endif
+
 int
-udev_sys_enumerate(struct scan_ctx *ctx)
+udev_sys_enumerate(struct udev_enumerate *ue)
 {
 #ifdef HAVE_DEVINFO_H
-	return (scandev_recursive(ctx));
+	struct scan_ctx ctx = {
+		.recursive = true,
+		.cb = udev_sys_enumerate_cb,
+		.args = ue,
+	};
+
+	return (scandev_recursive(&ctx));
 #else
 	return (0);
 #endif
