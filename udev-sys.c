@@ -23,20 +23,25 @@
  * SUCH DAMAGE.
  */
 
+#include "config.h"
+
+#include <string.h>
+#ifdef HAVE_DEVINFO_H
+#include <devinfo.h>
+#endif
+
 #include "udev-global.h"
 
 #ifdef HAVE_DEVINFO_H
 static int
-udev_sys_enumerate_cb(const char *path, mode_t type, void *arg)
+udev_sys_enumerate_cb(struct devinfo_dev *dev, void *arg)
 {
 	struct udev_enumerate *ue = arg;
-	const char *syspath;
 
-	if (S_ISLNK(type) || S_ISCHR(type)) {
-		syspath = get_syspath_by_devpath(path);
-		return (udev_enumerate_add_device(ue, syspath));
-	}
-	return (0);
+	if (dev->dd_name[0] == '\0' || dev->dd_state < DS_ATTACHED)
+		return (0);
+
+	return (udev_enumerate_add_device(ue, dev->dd_name));
 }
 #endif
 
@@ -44,8 +49,7 @@ int
 udev_sys_enumerate(struct udev_enumerate *ue)
 {
 #ifdef HAVE_DEVINFO_H
-	struct scan_ctx ctx = {
-		.recursive = true,
+	struct scandev_ctx ctx = {
 		.cb = udev_sys_enumerate_cb,
 		.args = ue,
 	};

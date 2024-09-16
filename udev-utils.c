@@ -234,7 +234,7 @@ get_syspath_by_devnum(dev_t devnum)
 	char devpath[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
 	char linkdir[DEV_PATH_MAX];
 	struct stat st;
-	struct scan_ctx ctx;
+	struct scandir_ctx ctx;
 	struct devnum_scan_args args;
 	const char *linkbase;
 	size_t dev_len, linkdir_len, i;
@@ -264,7 +264,7 @@ get_syspath_by_devnum(dev_t devnum)
 				.path = devpath,
 				.len = sizeof(devpath),
 			};
-			ctx = (struct scan_ctx) {
+			ctx = (struct scandir_ctx) {
 				.recursive = false,
 				.cb = get_syspath_by_devnum_cb,
 				.args = &args,

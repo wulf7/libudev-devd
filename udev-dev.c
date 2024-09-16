@@ -112,7 +112,7 @@ int
 udev_dev_enumerate(struct udev_enumerate *ue)
 {
 	char path[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
-	struct scan_ctx ctx = {
+	struct scandir_ctx ctx = {
 		.recursive = true,
 		.cb = udev_dev_enumerate_cb,
 		.args = ue,

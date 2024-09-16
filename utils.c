@@ -175,7 +175,7 @@ out:
 }
 
 static int
-scandir_sub(char *path, int off, int rem, struct scan_ctx *ctx)
+scandir_sub(char *path, int off, int rem, struct scandir_ctx *ctx)
 {
 	DIR *dir;
 	struct dirent *ent;
@@ -220,7 +220,7 @@ scandir_sub(char *path, int off, int rem, struct scan_ctx *ctx)
 }
 
 int
-scandir_recursive(char *path, size_t len, struct scan_ctx *ctx)
+scandir_recursive(char *path, size_t len, struct scandir_ctx *ctx)
 {
 	size_t root_len = strlen(path);
 
@@ -231,10 +231,9 @@ scandir_recursive(char *path, size_t len, struct scan_ctx *ctx)
 static int
 scandev_sub(struct devinfo_dev *dev, void *args)
 {
-	struct scan_ctx *ctx = args;
+	struct scandev_ctx *ctx = args;
 
-	if (dev->dd_name[0] != '\0' && dev->dd_state >= DS_ATTACHED)
-		if ((ctx->cb)(dev->dd_name, DT_CHR, ctx->args) < 0)
+	if ((ctx->cb)(dev, ctx->args) < 0)
 			return (-1);
 
 	/* recurse */
@@ -243,7 +242,7 @@ scandev_sub(struct devinfo_dev *dev, void *args)
 
 
 int
-scandev_recursive (struct scan_ctx *ctx)
+scandev_recursive (struct scandev_ctx *ctx)
 {
 	struct devinfo_dev *root;
 	int ret;
@@ -303,7 +302,7 @@ devname_r(dev_t dev, mode_t type, char *buf, int len)
 		.buf = buf,
 		.len = len,
 	};
-	struct scan_ctx ctx = {
+	struct scandir_ctx ctx = {
 		.recursive = true,
 		.cb = devname_cb,
 		.args = &args,

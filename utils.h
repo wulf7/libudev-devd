@@ -92,16 +92,16 @@ do {									\
 #define	ST_RDEV	st_rdev
 #endif
 
-typedef int (* scan_cb_t)(const char *path, mode_t type, void *args);
+typedef int (* scandir_cb_t)(const char *path, mode_t type, void *args);
 
 /* If .recursive is true, then .cb gets called for non-dir
  * paths, an the overall scandir is recursive. If .recursive
  * is false, then .cb gets called for all paths in the
  * directory, and scandir is non-recursive.
  */
-struct scan_ctx {
+struct scandir_ctx {
 	bool recursive;
-	scan_cb_t cb;
+	scandir_cb_t cb;
 	void *args;
 };
 
@@ -109,9 +109,15 @@ char *strbase(const char *path);
 char *get_kern_prop_value(const char *buf, const char *prop, size_t *len);
 int match_kern_prop_value(const char *buf, const char *prop, const char *value);
 int path_to_fd(const char *path);
-int scandir_recursive(char *path, size_t len, struct scan_ctx *ctx);
+int scandir_recursive(char *path, size_t len, struct scandir_ctx *ctx);
 #ifdef HAVE_DEVINFO_H
-int scandev_recursive(struct scan_ctx *ctx);
+struct devinfo_dev;
+typedef int (* scandev_cb_t)(struct devinfo_dev *dev, void *args);
+struct scandev_ctx {
+	scandev_cb_t cb;
+	void *args;
+};
+int scandev_recursive(struct scandev_ctx *ctx);
 #endif
 #ifndef HAVE_DEVNAME_R
 char *devname_r(dev_t dev, mode_t type, char *buf, int len);
