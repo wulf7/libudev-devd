@@ -38,6 +38,7 @@
 #include "udev-filter.h"
 #include "udev-list.h"
 #include "udev-net.h"
+#include "udev-sys.h"
 #include "udev-utils.h"
 #include "utils.h"
 
@@ -208,10 +209,8 @@ udev_enumerate_scan_devices(struct udev_enumerate *ue)
 	};
 
 	ret = scandir_recursive(path, sizeof(path), &ctx);
-#ifdef HAVE_DEVINFO_H
 	if (ret == 0)
-		ret = scandev_recursive(&ctx);
-#endif
+		ret = udev_sys_enumerate(&ctx);
 	if (ret == 0)
 		ret = udev_net_enumerate(&ctx);
 	if (ret == -1)

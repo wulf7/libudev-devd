@@ -23,8 +23,6 @@
  * SUCH DAMAGE.
  */
 
-#include "config.h"
-
 #include <sys/types.h>
 #include <sys/queue.h>
 #include <sys/socket.h>
@@ -44,6 +42,7 @@
 #include "udev.h"
 #include "udev-device.h"
 #include "udev-net.h"
+#include "udev-sys.h"
 #include "udev-utils.h"
 #include "udev-filter.h"
 #include "udev-utils.h"
@@ -125,7 +124,7 @@ udev_monitor_send_device(struct udev_monitor *um, const char *syspath,
 }
 
 static int
-parse_devd_message(char *msg, char *syspath, size_t syspathlen)
+udev_dev_monitor(char *msg, char *syspath, size_t syspathlen)
 {
 	char devpath[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
 	const char *type, *dev_name;
@@ -135,48 +134,45 @@ parse_devd_message(char *msg, char *syspath, size_t syspathlen)
 	root_len = strlen(devpath);
 	action = UD_ACTION_NONE;
 
-	switch (msg[0]) {
-#ifdef HAVE_DEVINFO_H
-	case DEVD_EVENT_ATTACH:
+	if (msg[0] != DEVD_EVENT_NOTICE)
+		return (UD_ACTION_NONE);
+
+	if (!(match_kern_prop_value(msg + 1, "system", "DEVFS")
+	    && match_kern_prop_value(msg + 1, "subsystem", "CDEV"))
+	    && !match_kern_prop_value(msg + 1, "system", "DRM"))
+		return (UD_ACTION_NONE);
+
+	type = get_kern_prop_value(msg + 1, "type", &type_len);
+	dev_name = get_kern_prop_value(msg + 1, "cdev", &dev_len);
+	if (type == NULL ||
+	    dev_name == NULL ||
+	    dev_len > (sizeof(devpath) - root_len - 1))
+		return (UD_ACTION_NONE);
+
+	if (     type_len == 6 && strncmp(type, "CREATE", type_len) == 0)
 		action = UD_ACTION_ADD;
-		/* FALLTHROUGH */
-	case DEVD_EVENT_DETACH:
-		if (action == UD_ACTION_NONE)
-			action = UD_ACTION_REMOVE;
-		*(strchrnul(msg + 1, ' ')) = '\0';
-		strlcpy(syspath, msg + 1, syspathlen);
-		break;
-#endif /* HAVE_DEVINFO_H */
-	case DEVD_EVENT_NOTICE:
-		if (!(match_kern_prop_value(msg + 1, "system", "DEVFS")
-			&& match_kern_prop_value(msg + 1, "subsystem", "CDEV"))
-			&& !match_kern_prop_value(msg + 1, "system", "DRM"))
-			break;
-		type = get_kern_prop_value(msg + 1, "type", &type_len);
-		dev_name = get_kern_prop_value(msg + 1, "cdev", &dev_len);
-		if (type == NULL ||
-		    dev_name == NULL ||
-		    dev_len > (sizeof(devpath) - root_len - 1))
-			break;
-		if (type_len == 6 &&
-		    strncmp(type, "CREATE", type_len) == 0)
-			action = UD_ACTION_ADD;
-		else if (type_len == 7 &&
-		    strncmp(type, "DESTROY", type_len) == 0)
-			action = UD_ACTION_REMOVE;
-		else if (type_len == 7 &&
-		    strncmp(type, "HOTPLUG", type_len) == 0)
-			action = UD_ACTION_HOTPLUG;
-		else
-			break;
-		memcpy(devpath + root_len, dev_name, dev_len);
-		devpath[dev_len + root_len] = 0;
-		strlcpy(syspath, get_syspath_by_devpath(devpath), syspathlen);
-		break;
-	case DEVD_EVENT_UNKNOWN:
-	default:
-		break;
-	}
+	else if (type_len == 7 && strncmp(type, "DESTROY", type_len) == 0)
+		action = UD_ACTION_REMOVE;
+	else if (type_len == 7 && strncmp(type, "HOTPLUG", type_len) == 0)
+		action = UD_ACTION_HOTPLUG;
+	else
+		return (UD_ACTION_NONE);
+
+	memcpy(devpath + root_len, dev_name, dev_len);
+	devpath[dev_len + root_len] = 0;
+	strlcpy(syspath, get_syspath_by_devpath(devpath), syspathlen);
+
+	return (action);
+}
+
+static int
+parse_devd_message(char *msg, char *syspath, size_t syspathlen)
+{
+	int action;
+
+	action = udev_dev_monitor(msg, syspath, syspathlen);
+	if (action == UD_ACTION_NONE)
+		action = udev_sys_monitor(msg, syspath, syspathlen);
 	if (action == UD_ACTION_NONE)
 		action = udev_net_monitor(msg, syspath, syspathlen);
 
