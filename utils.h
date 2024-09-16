@@ -131,5 +131,8 @@ char *strchrnul(const char *p, int ch);
 #ifndef HAVE_STRLCPY
 size_t strlcpy(char *dst, const char *src, size_t dsize);
 #endif
+#ifndef HAVE_STRLCAT
+size_t strlcat(char *dst, const char *src, size_t dsize);
+#endif
 
 #endif /* UTILS_H_ */

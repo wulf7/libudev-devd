@@ -36,12 +36,14 @@
 static int
 udev_sys_enumerate_cb(struct devinfo_dev *dev, void *arg)
 {
+	char syspath[DEV_PATH_MAX] = "/sys/";
 	struct udev_enumerate *ue = arg;
 
 	if (dev->dd_name[0] == '\0' || dev->dd_state < DS_ATTACHED)
 		return (0);
 
-	return (udev_enumerate_add_device(ue, dev->dd_name));
+	strlcat(syspath, dev->dd_name, sizeof(syspath));
+	return (udev_enumerate_add_device(ue, syspath));
 }
 #endif
 
@@ -78,7 +80,8 @@ udev_sys_monitor(char *msg, char *syspath, size_t syspathlen)
 	}
 
 	*(strchrnul(msg + 1, ' ')) = '\0';
-	strlcpy(syspath, msg + 1, syspathlen);
+	strlcpy(syspath, "/sys/", syspathlen);
+	strlcat(syspath, msg + 1, syspathlen);
 #endif /* HAVE_DEVINFO_H */
 
 	return (action);

@@ -35,7 +35,7 @@ AC_CHECK_HEADERS([devinfo.h],
                  [],
                  [[@%:@include <devinfo.h>]])
 AC_CHECK_HEADERS([dev/hid/hidraw.h linux/input.h dev/evdev/input.h sys/tree.h])
-AC_CHECK_FUNCS([devname_r pipe2 strchrnul strlcpy sysctlbyname])
+AC_CHECK_FUNCS([devname_r pipe2 strchrnul strlcat strlcpy sysctlbyname])
 
 AC_CONFIG_FILES([Makefile
 		 libudev.pc

@@ -73,6 +73,10 @@ if cc.has_function('strchrnul')
 	config_h.set('HAVE_STRCHRNUL', '1')
 endif
 
+if cc.has_function('strlcat')
+	config_h.set('HAVE_STRLCAT', '1')
+endif
+
 if cc.has_function('strlcpy')
 	config_h.set('HAVE_STRLCPY', '1')
 endif
