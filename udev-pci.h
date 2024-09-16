@@ -23,29 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef UDEV_GLOBAL_H_
-#define UDEV_GLOBAL_H_
+#ifndef UDEV_PCI_H_
+#define UDEV_PCI_H_
 
-#include "config.h"
+struct udev_enumerate;
 
-#include "libudev.h"
+create_node_handler_t	create_pci_handler;
 
-#include "utils.h"
+int udev_pci_enumerate(struct udev_enumerate *ue);
+int udev_pci_monitor(char *msg, char *syspath, size_t syspathlen);
 
-#include "udev.h"
-#include "udev-device.h"
-#include "udev-enumerate.h"
-#include "udev-filter.h"
-#include "udev-list.h"
-#include "udev-utils.h"
-
-#ifdef ENABLE_GPL
-#include "utils-gpl.h"
-#endif
-
-#include "udev-dev.h"
-#include "udev-net.h"
-#include "udev-pci.h"
-#include "udev-sys.h"
-
-#endif /* UDEV_GLOBAL_H_ */
+#endif /* UDEV_PCI_H_ */

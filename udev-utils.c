@@ -135,6 +135,13 @@ static const struct subsystem_config subsystems[] = {
 		.create_handler = create_hidraw_handler,
 	},
 #endif
+#ifdef HAVE_DEVINFO_H
+	{
+		.subsystem = "pci",
+		.syspath = "/pci/*",
+		.create_handler = create_pci_handler,
+	},
+#endif
 };
 
 static const struct subsystem_config *

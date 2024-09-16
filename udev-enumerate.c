@@ -191,6 +191,8 @@ udev_enumerate_scan_devices(struct udev_enumerate *ue)
 	if (ret == 0)
 		ret = udev_sys_enumerate(ue);
 	if (ret == 0)
+		ret = udev_pci_enumerate(ue);
+	if (ret == 0)
 		ret = udev_net_enumerate(ue);
 	if (ret == -1)
 		udev_list_free(&ue->dev_list);

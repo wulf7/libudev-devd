@@ -124,6 +124,8 @@ parse_devd_message(char *msg, char *syspath, size_t syspathlen)
 	if (action == UD_ACTION_NONE)
 		action = udev_sys_monitor(msg, syspath, syspathlen);
 	if (action == UD_ACTION_NONE)
+		action = udev_pci_monitor(msg, syspath, syspathlen);
+	if (action == UD_ACTION_NONE)
 		action = udev_net_monitor(msg, syspath, syspathlen);
 
 	return (action);
