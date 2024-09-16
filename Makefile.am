@@ -6,6 +6,8 @@ include_HEADERS =	libudev.h
 libudev_la_SOURCES =	tree.h			\
 			udev.c			\
 			udev.h			\
+			udev-dev.c		\
+			udev-dev.h		\
 			udev-device.c		\
 			udev-device.h		\
 			udev-enumerate.c	\

@@ -89,6 +89,8 @@ pkgconfig = import('pkgconfig')
 
 install_headers('libudev.h')
 src_libudevdevd = [ 'udev.c',
+	'udev-dev.c',
+	'udev-dev.h',
 	'udev-device.c',
 	'udev-device.h',
 	'udev-enumerate.c',

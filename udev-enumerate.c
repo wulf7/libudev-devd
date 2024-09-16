@@ -188,7 +188,6 @@ LIBUDEV_EXPORT int
 udev_enumerate_scan_devices(struct udev_enumerate *ue)
 {
 	struct scan_ctx ctx;
-	char path[DEV_PATH_MAX] = DEV_PATH_ROOT "/";
 	int ret;
 
 	TRC("(%p)", ue);
@@ -200,7 +199,7 @@ udev_enumerate_scan_devices(struct udev_enumerate *ue)
 		.args = ue,
 	};
 
-	ret = scandir_recursive(path, sizeof(path), &ctx);
+	ret = udev_dev_enumerate(&ctx);
 	if (ret == 0)
 		ret = udev_sys_enumerate(&ctx);
 	if (ret == 0)

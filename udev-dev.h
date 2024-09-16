@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Future Crew LLC
+ * Copyright (c) 2015, 2021 Vladimir Kondratyev <vladimir@kondratyev.su>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,27 +23,31 @@
  * SUCH DAMAGE.
  */
 
-#ifndef UDEV_GLOBAL_H_
-#define UDEV_GLOBAL_H_
+#ifndef UDEV_DEV_H_
+#define UDEV_DEV_H_
 
 #include "config.h"
 
-#include "libudev.h"
-
-#include "utils.h"
-
-#include "udev.h"
-#include "udev-device.h"
-#include "udev-filter.h"
-#include "udev-list.h"
 #include "udev-utils.h"
 
-#ifdef ENABLE_GPL
-#include "utils-gpl.h"
+struct scan_ctx;
+
+#if defined (HAVE_LINUX_INPUT_H) || defined (HAVE_DEV_EVDEV_INPUT_H)
+create_node_handler_t	create_evdev_handler;
+#endif
+create_node_handler_t	create_keyboard_handler;
+create_node_handler_t	create_mouse_handler;
+create_node_handler_t	create_joystick_handler;
+create_node_handler_t	create_touchpad_handler;
+create_node_handler_t	create_touchscreen_handler;
+create_node_handler_t	create_sysmouse_handler;
+create_node_handler_t	create_kbdmux_handler;
+create_node_handler_t	create_drm_handler;
+#ifdef HAVE_DEV_HID_HIDRAW_H
+create_node_handler_t	create_hidraw_handler;
 #endif
 
-#include "udev-dev.h"
-#include "udev-net.h"
-#include "udev-sys.h"
+int udev_dev_enumerate(struct scan_ctx *ctx);
+int udev_dev_monitor(char *msg, char *syspath, size_t syspathlen);
 
-#endif /* UDEV_GLOBAL_H_ */
+#endif /* UDEV_DEV_H_ */
