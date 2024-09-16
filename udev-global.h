@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Vladimir Kondratyev <vladimir@kondratyev.su>
+ * Copyright (c) 2024 Future Crew LLC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,52 +23,26 @@
  * SUCH DAMAGE.
  */
 
-#include <errno.h>
-#include <stddef.h>
-#include <stdlib.h>
+#ifndef UDEV_GLOBAL_H_
+#define UDEV_GLOBAL_H_
 
-#include "udev-global.h"
+#include "config.h"
 
-struct udev_hwdb {
-	int refcount;
-};
+#include "libudev.h"
 
-LIBUDEV_EXPORT struct udev_hwdb *
-udev_hwdb_new(struct udev *udev)
-{
-	struct udev_hwdb *uh;
+#include "utils.h"
 
-	TRC("(%p)", udev);
-	uh = calloc(1, sizeof(struct udev_hwdb));
-	if (uh != NULL)
-		uh->refcount = 1;
-	return (uh);
-}
+#include "udev.h"
+#include "udev-device.h"
+#include "udev-filter.h"
+#include "udev-list.h"
+#include "udev-utils.h"
 
-LIBUDEV_EXPORT struct udev_hwdb *
-udev_hwdb_ref(struct udev_hwdb *uh)
-{
-	TRC("(%p)", uh);
-	if (uh != NULL)
-		++uh->refcount;
-        return (uh);
-}
+#ifdef ENABLE_GPL
+#include "utils-gpl.h"
+#endif
 
-LIBUDEV_EXPORT struct udev_hwdb *
-udev_hwdb_unref(struct udev_hwdb *uh)
-{
-	TRC("(%p)", uh);
-	if (uh != NULL && --uh->refcount == 0)
-		free(uh);
-	return (NULL);
-}
+#include "udev-net.h"
+#include "udev-sys.h"
 
-LIBUDEV_EXPORT struct udev_list_entry *
-udev_hwdb_get_properties_list_entry(struct udev_hwdb *uh, const char *modalias,
-    unsigned int flags)
-{
-	TRC("(%p, %s, %u)", uh, modalias, flags);
-	UNIMPL();
-	errno = EINVAL;
-	return (NULL);
-}
+#endif /* UDEV_GLOBAL_H_ */

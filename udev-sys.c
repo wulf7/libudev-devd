@@ -23,16 +23,7 @@
  * SUCH DAMAGE.
  */
 
-#include "config.h"
-
-#include "utils.h"
-
-#include "libudev.h"
-
-#include "udev-device.h"
-#include "udev-list.h"
-#include "udev-sys.h"
-#include "udev-utils.h"
+#include "udev-global.h"
 
 int
 udev_sys_enumerate(struct scan_ctx *ctx)

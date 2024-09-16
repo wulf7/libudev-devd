@@ -23,15 +23,10 @@
  * SUCH DAMAGE.
  */
 
-#include "config.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "libudev.h"
-#include "udev.h"
-#include "udev-utils.h"
-#include "utils.h"
+#include "udev-global.h"
 
 struct udev {
 	int refcount;

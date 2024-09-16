@@ -23,6 +23,8 @@
  * SUCH DAMAGE.
  */
 
+#include "udev-global.h"
+
 #include <sys/types.h>
 #include <sys/queue.h>
 #include <sys/socket.h>
@@ -37,16 +39,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "libudev.h"
-#include "udev.h"
-#include "udev-device.h"
-#include "udev-net.h"
-#include "udev-sys.h"
-#include "udev-utils.h"
-#include "udev-filter.h"
-#include "udev-utils.h"
-#include "utils.h"
 
 #define	DEVD_SOCK_PATH		"/var/run/devd.seqpacket.pipe"
 #define	DEVD_RECONNECT_INTERVAL	1000	/* reconnect after 1 second */

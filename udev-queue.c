@@ -23,8 +23,6 @@
  * SUCH DAMAGE.
  */
 
-#include "utils.h"
-
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -33,9 +31,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "libudev.h"
-
-#include "udev-utils.h"
+#include "udev-global.h"
 
 #define	DEVD_SOCK_PATH	"/var/run/devd.pipe"
 

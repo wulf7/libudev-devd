@@ -23,8 +23,6 @@
  * SUCH DAMAGE.
  */
 
-#include "utils.h"
-
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <net/if.h>
@@ -32,12 +30,7 @@
 #include <ifaddrs.h>
 #include <string.h>
 
-#include "libudev.h"
-
-#include "udev-device.h"
-#include "udev-list.h"
-#include "udev-net.h"
-#include "udev-utils.h"
+#include "udev-global.h"
 
 int
 udev_net_enumerate(struct scan_ctx *ctx)

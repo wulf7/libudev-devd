@@ -23,7 +23,6 @@
  * SUCH DAMAGE.
  */
 
-#include "config.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef __linux__
@@ -37,13 +36,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "libudev.h"
-#include "udev.h"
-#include "udev-device.h"
-#include "udev-filter.h"
-#include "udev-list.h"
-#include "udev-utils.h"
-#include "utils.h"
+#include "udev-global.h"
 
 struct udev_device {
 	int refcount;

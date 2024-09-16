@@ -23,8 +23,6 @@
  * SUCH DAMAGE.
  */
 
-#include "config.h"
-
 #include <sys/types.h>
 #include <sys/queue.h>
 
@@ -36,10 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "libudev.h"
-#include "udev-device.h"
-#include "udev-utils.h"
-#include "udev-filter.h"
+#include "udev-global.h"
 
 struct udev_filter_entry {
 	int type;

@@ -54,15 +54,7 @@
 #endif
 #endif
 
-#include "libudev.h"
-#include "udev-device.h"
-#include "udev-list.h"
-#include "udev-net.h"
-#include "udev-utils.h"
-#include "utils.h"
-#ifdef ENABLE_GPL
-#include "utils-gpl.h"
-#endif
+#include "udev-global.h"
 
 #ifdef HAVE_LINUX_INPUT_H
 #ifndef	BTN_DPAD_UP

@@ -23,17 +23,12 @@
  * SUCH DAMAGE.
  */
 
-#include "config.h"
+#include "udev-global.h"
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "libudev.h"
-#include "udev-list.h"
-#include "udev-utils.h"
-#include "utils.h"
 
 struct udev_list_entry {
 	struct udev_list *list;
