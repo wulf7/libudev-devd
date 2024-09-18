@@ -70,6 +70,25 @@ udev_list_insert(struct udev_list *ul, char const *name, char const *value)
 	return (0);
 }
 
+int
+udev_list_insertf(struct udev_list *ul, char const *name, char const *fmt, ...)
+{
+	char *value = NULL;
+	va_list ap;
+	int ret = -1;
+
+	va_start(ap, fmt);
+	vasprintf(&value, fmt, ap);
+	va_end(ap);
+
+	if (value != NULL) {
+		ret = udev_list_insert(ul, name, value);
+		free(value);
+	}
+
+	return (ret);
+}
+
 void
 udev_list_free(struct udev_list *ul)
 {
