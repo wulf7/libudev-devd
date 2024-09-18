@@ -27,14 +27,24 @@
 
 #include "config.h"
 
+#include <sys/types.h>
+#ifdef HAVE_DEVINFO_H
+#include <sys/pciio.h>
+#endif
+
+#include <errno.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #ifdef HAVE_DEVINFO_H
 #include <devinfo.h>
 #endif
 
 #include "udev-global.h"
+
+#define _PATH_DEVPCI	"/dev/pci"
 
 #ifdef HAVE_DEVINFO_H
 static bool
@@ -118,4 +128,90 @@ udev_pci_monitor(char *msg, char *syspath, size_t syspathlen)
 void
 create_pci_handler(struct udev_device *ud)
 {
+#ifdef HAVE_DEVINFO_H
+	struct pci_conf_io pc;
+	struct pci_conf conf;
+	struct pci_match_conf patterns;
+	const char *dbsf;
+	struct udev_list *props, *attrs;
+	unsigned int dom, bus, slot, func, class;
+	int fd;
+
+	dbsf = _udev_device_get_sysname(ud);
+	if (sscanf(dbsf, "%x:%x:%x.%x", &dom, &bus, &slot, &func) != 4) {
+		ERR("Invalid syspath dbsf value: %s", dbsf);
+		return;
+	}
+
+	bzero(&pc, sizeof(struct pci_conf_io));
+	pc.match_buf_len = sizeof(conf);
+	pc.matches = &conf;
+	pc.num_patterns = 1;
+	pc.pat_buf_len = sizeof(patterns);
+	pc.patterns = &patterns;
+
+	bzero(&patterns, sizeof(patterns));
+	patterns.pc_sel.pc_domain = dom;
+	patterns.pc_sel.pc_bus = bus;
+	patterns.pc_sel.pc_dev = slot;
+	patterns.pc_sel.pc_func = func;
+	patterns.flags = PCI_GETCONF_MATCH_DOMAIN |
+	    PCI_GETCONF_MATCH_BUS | PCI_GETCONF_MATCH_DEV |
+	    PCI_GETCONF_MATCH_FUNC;
+
+	fd = open(_PATH_DEVPCI, O_RDONLY | O_CLOEXEC, 0);
+	if (fd < 0) {
+		ERR("Failed to open %s", _PATH_DEVPCI);
+		return;
+	}
+
+	if (ioctl(fd, PCIOCGETCONF, &pc) == -1) {
+		ERR("Failed to ioctl(PCIOCGETCONF)");
+		goto out;
+	}
+
+	if (pc.status != PCI_GETCONF_LAST_DEVICE) {
+		ERR("Bad ioctl(PCIOCGETCONF) status: %d", pc.status);
+		goto out;
+	}
+
+	class = (conf.pc_class << 16)|(conf.pc_subclass << 8)|conf.pc_progif;
+
+	props = udev_device_get_properties_list(ud);
+	attrs = udev_device_get_sysattr_list(ud);
+
+	udev_list_insertf(props, "PCI_CLASS", "%x", class);
+	udev_list_insertf(props, "PCI_ID",
+	    "%04x:%04x", conf.pc_vendor, conf.pc_device);
+	udev_list_insertf(props, "PCI_SUBSYS_ID",
+	    "%04x:%04x", conf.pc_subvendor, conf.pc_subdevice);
+	udev_list_insertf(props, "PCI_SLOT_NAME",
+	    "%04x:%02x:%02x.%01x", dom, bus, slot, func);
+	udev_list_insertf(props, "ID_PATH",
+	    "pci-%04x:%02x:%02x.%01x", dom, bus, slot, func);
+	udev_list_insertf(props, "ID_PATH_TAG",
+	    "pci-%04x_%02x_%02x_%01x", dom, bus, slot, func);
+
+	udev_list_insertf(attrs, "class", "0x%06x", class);
+	udev_list_insertf(attrs, "vendor", "0x%04x", conf.pc_vendor);
+	udev_list_insertf(attrs, "device", "0x%04x", conf.pc_device);
+	udev_list_insertf(attrs, "subsystem_vendor",
+	   "0x%04x", conf.pc_subvendor);
+	udev_list_insertf(attrs, "subsystem_device",
+	   "0x%04x", conf.pc_subdevice);
+	udev_list_insertf(attrs, "revision", "0x%02x", conf.pc_revid);
+	udev_list_insert(attrs, "numa_node", "-1");
+	udev_list_insertf(attrs, "uevent",
+	    "PCI_CLASS=%x\n"
+	    "PCI_ID=%04x:%04x\n"
+	    "PCI_SUBSYS_ID=%04x:%04x\n"
+	    "PCI_SLOT_NAME=%04x:%02x:%02x.%01x",
+	    class,
+	    conf.pc_vendor, conf.pc_device,
+	    conf.pc_subvendor, conf.pc_subdevice,
+	    dom, bus, slot, func);
+
+out:
+	close(fd);
+#endif
 }
