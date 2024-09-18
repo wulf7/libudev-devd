@@ -283,12 +283,23 @@ udev_device_new_common(struct udev *udev, const char *syspath, int action)
 	return (ud);
 }
 
+const char *
+_udev_device_get_syspath(struct udev_device *ud)
+{
+	return (ud->syspath);
+}
+
 LIBUDEV_EXPORT const char *
 udev_device_get_syspath(struct udev_device *ud)
 {
-
 	TRC("(%p) %s", ud, ud->syspath);
-	return (ud->syspath);
+	return (_udev_device_get_syspath(ud));
+}
+
+const char *
+_udev_device_get_sysname(struct udev_device *ud)
+{
+	return (get_sysname_by_syspath(ud->syspath));
 }
 
 LIBUDEV_EXPORT const char *
@@ -296,7 +307,7 @@ udev_device_get_sysname(struct udev_device *ud)
 {
 	const char *sysname;
 
-	sysname = get_sysname_by_syspath(ud->syspath);
+	sysname = _udev_device_get_sysname(ud);
 	TRC("(%p(%s)) %s", ud, ud->syspath, sysname);
 	return (sysname);
 }

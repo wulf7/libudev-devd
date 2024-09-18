@@ -44,5 +44,7 @@ struct udev_list *udev_device_get_sysattr_list(struct udev_device *ud);
 struct udev_list *udev_device_get_tags_list(struct udev_device *ud);
 struct udev_list *udev_device_get_devlinks_list(struct udev_device *ud);
 void udev_device_set_parent(struct udev_device *ud, struct udev_device *parent);
+const char *_udev_device_get_syspath(struct udev_device *ud);
+const char *_udev_device_get_sysname(struct udev_device *ud);
 
 #endif /* UDEV_DVICE_H_ */

@@ -272,7 +272,7 @@ create_evdev_handler(struct udev_device *ud)
 	char mib[32];
 	size_t len;
 
-	sysname = udev_device_get_sysname(ud);
+	sysname = _udev_device_get_sysname(ud);
 	len = syspathlen_wo_units(sysname);
 	unit = sysname + len;
 
@@ -453,7 +453,7 @@ set_parent(struct udev_device *ud)
 	size_t vendorlen, prodlen, devicelen, pnplen;
 #endif
 
-	sysname = udev_device_get_sysname(ud);
+	sysname = _udev_device_get_sysname(ud);
 	len = syspathlen_wo_units(sysname);
 	/* Check if device unit number found */
 	if (strlen(sysname) == len)
@@ -543,7 +543,7 @@ create_kbdmux_handler(struct udev_device *ud)
 	const char* sysname;
 
 	set_input_device_type(ud, IT_KEYBOARD);
-	sysname = udev_device_get_sysname(ud);
+	sysname = _udev_device_get_sysname(ud);
 	parent = create_xorg_parent(ud, sysname,
 	    "System keyboard multiplexor", "6/1/1/0", NULL);
 	if (parent != NULL)
@@ -557,7 +557,7 @@ create_sysmouse_handler(struct udev_device *ud)
 	const char* sysname;
 
 	set_input_device_type(ud, IT_MOUSE);
-	sysname = udev_device_get_sysname(ud);
+	sysname = _udev_device_get_sysname(ud);
 	parent = create_xorg_parent(ud, sysname,
 	    "System mouse", "6/2/1/0", NULL);
 	if (parent != NULL)
@@ -604,7 +604,7 @@ create_drm_handler(struct udev_device *ud)
 	if (devpath == NULL)
 		return;
 
-	sysname = udev_device_get_sysname(ud);
+	sysname = _udev_device_get_sysname(ud);
 	parent = create_xorg_parent(ud, sysname, "drm parent", NULL, NULL);
 	if (parent == NULL)
 		return;

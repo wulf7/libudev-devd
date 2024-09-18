@@ -290,7 +290,7 @@ invoke_create_handler(struct udev_device *ud)
 	const char *path;
 	const struct subsystem_config *sc;
 
-	path = udev_device_get_syspath(ud);
+	path = _udev_device_get_syspath(ud);
 	sc = get_subsystem_config_by_syspath(path);
 	if (sc == NULL || sc->create_handler == NULL)
 		return;
