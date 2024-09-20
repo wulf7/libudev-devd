@@ -23,14 +23,22 @@
  * SUCH DAMAGE.
  */
 
+#include "udev-global.h"
+
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <net/ethernet.h>
 #include <net/if.h>
+#ifdef HAVE_NET_IF_DL_H
+#include <net/if_dl.h>
+#endif
 
 #include <ifaddrs.h>
 #include <string.h>
 
-#include "udev-global.h"
+#ifndef AF_LINK
+#define	AF_LINK	AF_PACKET
+#endif
 
 int
 udev_net_enumerate(struct udev_enumerate *ue)
@@ -96,17 +104,55 @@ udev_net_monitor(char *msg, char *syspath, size_t syspathlen)
 void
 create_net_handler(struct udev_device *ud)
 {
-	char buf[80];
-	const char *devpath;
+	struct udev_list *props, *attrs;
+	const char *ifname;
+#ifdef HAVE_NET_IF_DL_H
+	struct ifaddrs *ifap, *ifa;
+#else
 	unsigned int ifindex;
+#endif
 
-	devpath = udev_device_get_devnode(ud);
-	if (devpath == NULL)
+	ifname = _udev_device_get_sysname(ud);
+	if (ifname == NULL)
 		return;
 
-	ifindex = if_nametoindex(devpath);
-	if (ifindex != 0) {
-		snprintf(buf, sizeof(buf), "%u", ifindex);
-		udev_list_insert(udev_device_get_sysattr_list(ud), "ifindex", buf);
+	props = udev_device_get_properties_list(ud);
+	attrs = udev_device_get_sysattr_list(ud);
+
+	udev_list_insert(props, "INTERFACE", ifname);
+
+#ifdef HAVE_NET_IF_DL_H
+	if (getifaddrs(&ifap) != 0)
+		return;
+	for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+		struct sockaddr_dl *foo;
+		uint8_t *lladdr;
+		if (ifa->ifa_addr == NULL ||
+		    ifa->ifa_addr->sa_family != AF_LINK)
+			continue;
+		if (strncmp(ifname, ifa->ifa_name, IFNAMSIZ) != 0)
+			continue;
+		foo = (struct sockaddr_dl *)ifa->ifa_addr;
+		if (LLINDEX(foo) != 0) {
+			udev_list_insertf(props, "IFINDEX", "%u", LLINDEX(foo));
+			udev_list_insertf(attrs, "ifindex", "%u", LLINDEX(foo));
+		}
+		udev_list_insertf(attrs, "addr_len", "%u", foo->sdl_alen);
+		if (foo->sdl_alen == ETHER_ADDR_LEN) {
+			lladdr = (uint8_t *)LLADDR(foo);
+			udev_list_insertf(attrs, "address",
+			   "%02x:%02x:%02x:%02x:%02x:%02x",
+			   lladdr[0], lladdr[1], lladdr[2],
+			   lladdr[3], lladdr[4], lladdr[5]);
+		}
+		break;
 	}
+	freeifaddrs(ifap);
+#else
+	ifindex = if_nametoindex(ifname);
+	if (ifindex != 0) {
+		udev_list_insertf(props, "IFINDEX", "%u", ifindex);
+		udev_list_insertf(attrs, "ifindex", "%u", ifindex);
+	}
+#endif
 }

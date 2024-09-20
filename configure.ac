@@ -34,7 +34,11 @@ AC_CHECK_HEADERS([devinfo.h],
                  [AC_SEARCH_LIBS([devinfo_init], [devinfo])],
                  [],
                  [[@%:@include <devinfo.h>]])
-AC_CHECK_HEADERS([dev/hid/hidraw.h linux/input.h dev/evdev/input.h sys/tree.h])
+AC_CHECK_HEADERS([dev/evdev/input.h
+                  dev/hid/hidraw.h
+                  linux/input.h
+                  net/if_dl.h
+                  sys/tree.h])
 AC_CHECK_FUNCS([devname_r pipe2 strchrnul strlcat strlcpy sysctlbyname])
 
 AC_CONFIG_FILES([Makefile

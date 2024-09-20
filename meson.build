@@ -57,6 +57,10 @@ if cc.has_header('dev/evdev/input.h')
 	config_h.set('HAVE_DEV_EVDEV_INPUT_H', '1')
 endif
 
+if cc.has_header('net/if_dl.h')
+	config_h.set('HAVE_NET_IF_DL_H', '1')
+endif
+
 if cc.has_header('sys/tree.h')
 	config_h.set('HAVE_SYS_TREE_H', '1')
 endif
