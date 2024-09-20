@@ -124,6 +124,11 @@ static const struct subsystem_config subsystems[] = {
 		.create_handler = create_drm_handler,
 	}, {
 		.subsystem = "net",
+		.syspath = "/net/wlan[0-9]*",
+		.devtype = "wlan",
+		.create_handler = create_net_handler,
+	}, {
+		.subsystem = "net",
 		.syspath = "/net/*",
 		.create_handler = create_net_handler,
 	}, {
