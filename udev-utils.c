@@ -131,7 +131,6 @@ static const struct subsystem_config subsystems[] = {
 		.subsystem = "net",
 		.syspath = "/net/*",
 		.create_handler = create_net_handler,
-	}, {
 	},
 #ifdef HAVE_DEV_HID_HIDRAW_H
 	{

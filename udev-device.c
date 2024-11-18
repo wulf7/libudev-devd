@@ -99,7 +99,7 @@ udev_device_new_from_device_id(struct udev *udev, const char *id)
 LIBUDEV_EXPORT struct udev_device *
 udev_device_new_from_environment(struct udev *udev)
 {
-	TRC("(%p)", ud);
+	TRC("(%p)", udev);
 	UNIMPL();
 	return (NULL);
 }
