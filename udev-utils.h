@@ -40,6 +40,7 @@ struct udev_device;
 #define	DEVD_EVENT_UNKNOWN	'?'
 
 #define	UNKNOWN_SUBSYSTEM	"#"
+#define	UNKNOWN_DEVTYPE		"#"
 
 typedef void (create_node_handler_t)(struct udev_device *udev_device);
 

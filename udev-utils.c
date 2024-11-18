@@ -187,18 +187,24 @@ const char *
 get_subsystem_by_syspath(const char *syspath, const char **devtype)
 {
 	const struct subsystem_config *sc;
+	const char *subsystem, *devicetype;
 
 	sc = get_subsystem_config_by_syspath(syspath);
-	if (sc == NULL)
-		return (UNKNOWN_SUBSYSTEM);
-	if (sc->flags & SCFLAG_SKIP_IF_EVDEV && kernel_has_evdev_enabled()) {
+	if (sc == NULL) {
+		subsystem = UNKNOWN_SUBSYSTEM;
+		devicetype = UNKNOWN_DEVTYPE;
+	} else if (sc->flags & SCFLAG_SKIP_IF_EVDEV && kernel_has_evdev_enabled()) {
 		TRC("(%s) EVDEV enabled -> skipping device", syspath);
-		return (UNKNOWN_SUBSYSTEM);
+		subsystem = UNKNOWN_SUBSYSTEM;
+		devicetype = UNKNOWN_DEVTYPE;
+	} else {
+		subsystem = sc->subsystem;
+		devicetype = sc->devtype;
 	}
 
 	if (devtype != NULL)
-		*devtype = sc->devtype;
-	return (sc->subsystem);
+		*devtype = devicetype;
+	return (subsystem);
 }
 
 const char *
