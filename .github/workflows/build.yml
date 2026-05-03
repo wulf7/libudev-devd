@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  freebsd-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v6
+
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: 'freebsd'
+          version: '15.0'
+          architecture: 'x86_64'
+          run: |
+            # Use latest package set
+            sudo mkdir -p /usr/local/etc/pkg/repos/
+            sudo cp /etc/pkg/FreeBSD.conf /usr/local/etc/pkg/repos/FreeBSD.conf
+            sudo sed -i.bak -e 's|/quarterly|/latest|' /usr/local/etc/pkg/repos/FreeBSD.conf
+
+            # Install deps
+            sudo -E pkg install -y \
+                evdev-proto meson ninja pkgconf
+
+            # Run the build
+            env CPPFLAGS='-isystem /usr/local/include' CFLAGS='-isystem /usr/local/include' meson _build
+            ninja -v -C _build
