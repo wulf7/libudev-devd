@@ -76,6 +76,8 @@ LIBUDEV_EXPORT void
 udev_unref(struct udev *udev)
 {
 
+	if (!udev)
+		return;
 	TRC("(%p) refcount=%d", udev, udev->refcount);
 	_udev_unref(udev);
 }
