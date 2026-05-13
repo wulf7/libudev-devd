@@ -439,8 +439,20 @@ udev_device_get_devnum(struct udev_device *ud)
 {
 	const char *devpath;
 	struct stat st;
+	const char *dn;
 
 	TRC("(%p) %s", ud, ud->syspath);
+
+	/*
+	 * If a DEVNUM udev property is set (populated from a kernel
+	 * sysctl by the evdev create handler), trust it.  This avoids a
+	 * stat(2) that would fail when the device node is not visible, such as
+	 * in a jail without devfs.
+	 */
+	dn = udev_device_get_property_value(ud, "DEVNUM");
+	if (dn != NULL)
+		return ((dev_t)strtoull(dn, NULL, 10));
+
 	devpath = get_devpath_by_syspath(ud->syspath);
 	if (devpath == NULL ||
 	    stat(devpath, &st) < 0 ||

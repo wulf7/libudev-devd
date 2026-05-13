@@ -35,6 +35,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <fnmatch.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -267,6 +268,7 @@ create_evdev_handler(struct udev_device *ud)
 	unsigned long sw_bits[NLONGS(SW_CNT)];
 	unsigned long prp_bits[NLONGS(INPUT_PROP_CNT)];
 	struct input_id id;
+	uint64_t devnum = (uint64_t)NODEV;
 #ifdef HAVE_SYSCTLBYNAME
 	const char *unit;
 	char mib[32];
@@ -316,6 +318,16 @@ create_evdev_handler(struct udev_device *ud)
 	if (sysctlbyname(mib, prp_bits, &len, NULL, 0) < 0)
 		goto use_ioctl;
 
+	/*
+	 * devnum sysctl is optional: sysctlbyname on kernels predacting its
+	 * introduction will fail but that does not mean we should fall back to
+	 * ioctl. We just leave devnum untouched, with its initialization value
+	 * of NODEV.
+	 */
+	snprintf(mib, sizeof(mib), "kern.evdev.input.%s.devnum", unit);
+	len = sizeof(devnum);
+	(void)sysctlbyname(mib, &devnum, &len, NULL, 0);
+
 	goto found_values;
 
 use_ioctl:
@@ -346,6 +358,11 @@ use_ioctl:
 #ifdef HAVE_SYSCTLBYNAME
 found_values:
 #endif
+	if (devnum != NODEV) {
+		udev_list_insertf(udev_device_get_properties_list(ud),
+		    "DEVNUM", "%" PRIu64, devnum);
+	}
+
 	/* Derived from EvdevProbe() function of xf86-input-evdev driver */
 	has_keys = bit_find(key_bits, 0, BTN_MISC);
 	has_buttons = bit_find(key_bits, BTN_MISC, BTN_JOYSTICK);
