@@ -272,7 +272,7 @@ udev_device_new_common(struct udev *udev, const char *syspath, int action)
 	ud->flags.action = action;
 	ud->parent = NULL;
 	ud->refcount = 1;
-	strcpy(ud->syspath, syspath);
+	strlcpy(ud->syspath, syspath, strlen(syspath) + 1);
 	udev_list_init(&ud->prop_list);
 	udev_list_init(&ud->sysattr_list);
 	udev_list_init(&ud->tag_list);
