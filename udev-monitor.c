@@ -59,6 +59,20 @@ struct udev_monitor {
 	pthread_t thread;
 };
 
+static int
+udev_monitor_set_fd_nonblock(int fd)
+{
+	int flags;
+
+	flags = fcntl(fd, F_GETFL);
+	if (flags == -1)
+		return (-1);
+	if ((flags & O_NONBLOCK) != 0)
+		return (0);
+
+	return (fcntl(fd, F_SETFL, flags | O_NONBLOCK));
+}
+
 LIBUDEV_EXPORT struct udev_device *
 udev_monitor_receive_device(struct udev_monitor *um)
 {
@@ -223,6 +237,13 @@ udev_monitor_new_from_netlink(struct udev *udev, const char *name)
 
 	if (pipe2(um->fds, O_CLOEXEC) == -1) {
 		ERR("pipe2 failed");
+		free(um);
+		return (NULL);
+	}
+	if (udev_monitor_set_fd_nonblock(um->fds[0]) == -1) {
+		ERR("fcntl failed");
+		close(um->fds[0]);
+		close(um->fds[1]);
 		free(um);
 		return (NULL);
 	}
