@@ -119,6 +119,7 @@ static const struct subsystem_config subsystems[] = {
 		.create_handler = create_mouse_handler,
 	}, {
 		.subsystem = "drm",
+		.devtype = "drm_minor",
 		.syspath = DEV_PATH_ROOT "/dri/card[0-9]*",
 		.symlink = DEV_PATH_ROOT "/drm/[0-9]*",
 		.create_handler = create_drm_handler,
